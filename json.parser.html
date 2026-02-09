@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Parser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --error-color: #d32f2f;
+            --button-bg: #2196F3;
+            --button-hover: #1976D2;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --text-primary: #d4d4d4;
+            --text-secondary: #9d9d9d;
+            --border-color: #3e3e42;
+            --error-color: #f48771;
+            --button-bg: #0e639c;
+            --button-hover: #1177bb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            min-width: 200px;
+            overflow: hidden;
+        }
+
+        .panel.left {
+            padding-right: 0.5rem;
+        }
+
+        .panel.right {
+            flex: 1;
+            padding-left: 0.5rem;
+        }
+
+        .panel.left {
+            width: 50%;
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        textarea, pre {
+            flex: 1;
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            resize: none;
+            overflow: auto;
+        }
+
+        textarea:focus {
+            outline: 2px solid var(--button-bg);
+            outline-offset: -2px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .error {
+            color: var(--error-color);
+            padding: 1rem;
+            border: 1px solid var(--error-color);
+            border-radius: 4px;
+            background-color: var(--bg-secondary);
+        }
+
+        .divider {
+            width: 2px;
+            background-color: transparent;
+            cursor: col-resize;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .json-key {
+            color: #0451a5;
+        }
+
+        [data-theme="dark"] .json-key {
+            color: #9cdcfe;
+        }
+
+        .json-string {
+            color: #a31515;
+        }
+
+        [data-theme="dark"] .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #098658;
+        }
+
+        [data-theme="dark"] .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #0000ff;
+        }
+
+        [data-theme="dark"] .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #0000ff;
+        }
+
+        [data-theme="dark"] .json-null {
+            color: #569cd6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>JSON Parser</h1>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="panel left" id="leftPanel">
+            <div class="panel-title">Input JSON</div>
+            <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
+        </div>
+
+        <div class="divider" id="divider"></div>
+
+        <div class="panel right" id="rightPanel">
+            <div class="panel-title">Formatted Output</div>
+            <pre id="jsonOutput">Formatted JSON will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        const jsonInput = document.getElementById('jsonInput');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const divider = document.getElementById('divider');
+        const leftPanel = document.getElementById('leftPanel');
+        const container = document.querySelector('.container');
+
+        // System theme detection and auto-adaptation
+        function getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon(theme);
+        }
+
+        // Initialize theme: use saved preference, otherwise use system preference
+        const savedTheme = localStorage.getItem('theme');
+        const initialTheme = savedTheme || getSystemTheme();
+        applyTheme(initialTheme);
+
+        // Listen for system theme changes (only if no saved preference)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Resizable divider functionality
+        let isResizing = false;
+
+        divider.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const newLeftWidth = e.clientX - containerRect.left;
+            const containerWidth = containerRect.width;
+
+            // Set minimum and maximum widths (20% to 80%)
+            const minWidth = containerWidth * 0.2;
+            const maxWidth = containerWidth * 0.8;
+
+            if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
+                const percentage = (newLeftWidth / containerWidth) * 100;
+                leftPanel.style.width = percentage + '%';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+
+        // JSON parsing and formatting
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function parseJSON() {
+            const input = jsonInput.value.trim();
+
+            if (!input) {
+                jsonOutput.innerHTML = 'Formatted JSON will appear here...';
+                jsonOutput.className = '';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const formatted = JSON.stringify(parsed, null, 2);
+                const highlighted = syntaxHighlight(formatted);
+                jsonOutput.innerHTML = highlighted;
+                jsonOutput.className = '';
+            } catch (error) {
+                jsonOutput.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+                jsonOutput.className = 'error';
+            }
+        }
+
+        // Parse on input
+        jsonInput.addEventListener('input', parseJSON);
+
+        // Initial parse if there's content
+        parseJSON();
+    </script>
+</body>
+</html>
