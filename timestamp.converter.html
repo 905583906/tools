@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间戳转换</title>
+    <style>
+        :root {
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #6b7280;
+            --border: #d1d5db;
+            --brand: #1f2937;
+            --brand-hover: #111827;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --accent: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            display: grid;
+            gap: 16px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 700;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timestamp-value {
+            font-size: 46px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        .timestamp-unit {
+            font-size: 20px;
+            color: var(--muted);
+            margin-left: 8px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #111827;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: #9ca3af;
+            transform: translateY(-1px);
+        }
+
+        .btn.primary {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: var(--brand-hover);
+            border-color: var(--brand-hover);
+        }
+
+        .btn.danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+        .btn.danger:hover {
+            background: var(--danger-hover);
+            border-color: var(--danger-hover);
+        }
+
+        .status {
+            color: var(--muted);
+            font-size: 13px;
+            min-height: 18px;
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: var(--accent);
+            padding: 6px;
+            border-radius: 10px;
+        }
+
+        .tab-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 15px;
+            background: transparent;
+            cursor: pointer;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(17, 24, 39, 0.12);
+            color: #111827;
+        }
+
+        .tab-panel {
+            display: none;
+            gap: 16px;
+        }
+
+        .tab-panel.active {
+            display: grid;
+        }
+
+        .input-row {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1.4fr 120px 90px 1.6fr 170px;
+        }
+
+        .input-row.simple {
+            grid-template-columns: 1fr;
+        }
+
+        input,
+        select,
+        textarea {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #fff;
+            color: #111827;
+            width: 100%;
+        }
+
+        textarea {
+            min-height: 170px;
+            resize: vertical;
+            font-family: "Cascadia Mono", "Consolas", "Menlo", monospace;
+            line-height: 1.4;
+        }
+
+        .batch-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 900px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .batch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timestamp-value {
+                font-size: 36px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1 class="title">时间戳转换</h1>
+
+        <section class="card">
+            <h2 class="section-subtitle">当前时间戳</h2>
+            <div>
+                <span id="currentTs" class="timestamp-value">0</span>
+                <span id="currentUnit" class="timestamp-unit">秒</span>
+            </div>
+            <div class="btn-row">
+                <button id="toggleUnitBtn" class="btn">切换单位</button>
+                <button id="copyCurrentBtn" class="btn">复制</button>
+                <button id="toggleTickerBtn" class="btn danger">停止</button>
+            </div>
+            <div id="copyStatus" class="status"></div>
+        </section>
+
+        <section class="card">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="single">单个转换</button>
+                <button class="tab-btn" data-tab="batch">批量转换</button>
+            </div>
+
+            <div id="tab-single" class="tab-panel active">
+                <h2 class="section-title">时间戳转日期时间</h2>
+                <div class="input-row">
+                    <input id="tsInput" type="text" placeholder="输入时间戳">
+                    <select id="tsUnitSelect">
+                        <option value="s">秒(s)</option>
+                        <option value="ms">毫秒(ms)</option>
+                    </select>
+                    <button id="convertTsBtn" class="btn primary">转换</button>
+                    <input id="tsResult" type="text" placeholder="转换结果" readonly>
+                    <select id="tsTimezone"></select>
+                </div>
+
+                <h2 class="section-title">日期时间转时间戳</h2>
+                <div class="input-row">
+                    <input id="dtInput" type="text" placeholder="2026-02-09 11:37:01">
+                    <select id="dtTimezone"></select>
+                    <button id="convertDtBtn" class="btn primary">转换</button>
+                    <input id="dtResult" type="text" placeholder="转换结果" readonly>
+                    <select id="dtOutputUnit">
+                        <option value="s">秒(s)</option>
+                        <option value="ms">毫秒(ms)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="tab-batch" class="tab-panel">
+                <h2 class="section-title">批量转换</h2>
+                <div class="input-row">
+                    <select id="batchMode">
+                        <option value="ts_to_dt">时间戳 -> 日期时间</option>
+                        <option value="dt_to_ts">日期时间 -> 时间戳</option>
+                    </select>
+                    <select id="batchTsUnit">
+                        <option value="s">输入单位: 秒(s)</option>
+                        <option value="ms">输入单位: 毫秒(ms)</option>
+                    </select>
+                    <button id="batchConvertBtn" class="btn primary">批量转换</button>
+                    <select id="batchTimezone"></select>
+                    <select id="batchOutUnit">
+                        <option value="s">输出单位: 秒(s)</option>
+                        <option value="ms">输出单位: 毫秒(ms)</option>
+                    </select>
+                </div>
+                <div class="batch-grid">
+                    <textarea id="batchInput" placeholder="每行一条数据&#10;示例(时间戳):&#10;1770608227&#10;1770608200&#10;&#10;示例(日期时间):&#10;2026-02-09 11:37:01&#10;2026-02-08 09:00:00"></textarea>
+                    <textarea id="batchOutput" placeholder="转换结果" readonly></textarea>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const timezones = [
+            "Asia/Shanghai",
+            "UTC",
+            "Asia/Tokyo",
+            "Europe/London",
+            "America/New_York",
+            "America/Los_Angeles"
+        ];
+
+        const state = {
+            currentUnit: "s",
+            tickerRunning: true,
+            timerId: null
+        };
+
+        const currentTs = document.getElementById("currentTs");
+        const currentUnit = document.getElementById("currentUnit");
+        const toggleUnitBtn = document.getElementById("toggleUnitBtn");
+        const copyCurrentBtn = document.getElementById("copyCurrentBtn");
+        const toggleTickerBtn = document.getElementById("toggleTickerBtn");
+        const copyStatus = document.getElementById("copyStatus");
+
+        const tsInput = document.getElementById("tsInput");
+        const tsUnitSelect = document.getElementById("tsUnitSelect");
+        const convertTsBtn = document.getElementById("convertTsBtn");
+        const tsResult = document.getElementById("tsResult");
+        const tsTimezone = document.getElementById("tsTimezone");
+
+        const dtInput = document.getElementById("dtInput");
+        const dtTimezone = document.getElementById("dtTimezone");
+        const convertDtBtn = document.getElementById("convertDtBtn");
+        const dtResult = document.getElementById("dtResult");
+        const dtOutputUnit = document.getElementById("dtOutputUnit");
+
+        const batchMode = document.getElementById("batchMode");
+        const batchTsUnit = document.getElementById("batchTsUnit");
+        const batchConvertBtn = document.getElementById("batchConvertBtn");
+        const batchTimezone = document.getElementById("batchTimezone");
+        const batchOutUnit = document.getElementById("batchOutUnit");
+        const batchInput = document.getElementById("batchInput");
+        const batchOutput = document.getElementById("batchOutput");
+
+        function pad2(value) {
+            return String(value).padStart(2, "0");
+        }
+
+        function fillTimezoneSelect(selectEl) {
+            timezones.forEach((tz) => {
+                const option = document.createElement("option");
+                option.value = tz;
+                option.textContent = tz;
+                selectEl.appendChild(option);
+            });
+            selectEl.value = "Asia/Shanghai";
+        }
+
+        function partsInTimezone(date, timezone) {
+            const formatter = new Intl.DateTimeFormat("en-US", {
+                timeZone: timezone,
+                hourCycle: "h23",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+
+            const parts = formatter.formatToParts(date);
+            const map = {};
+            parts.forEach((part) => {
+                if (part.type !== "literal") {
+                    map[part.type] = Number(part.value);
+                }
+            });
+
+            return map;
+        }
+
+        function formatDateTime(ms, timezone) {
+            const date = new Date(ms);
+            if (Number.isNaN(date.getTime())) {
+                return "无效时间戳";
+            }
+
+            const p = partsInTimezone(date, timezone);
+            return `${p.year}-${pad2(p.month)}-${pad2(p.day)} ${pad2(p.hour)}:${pad2(p.minute)}:${pad2(p.second)}`;
+        }
+
+        function timezoneOffsetMs(epochMs, timezone) {
+            const date = new Date(epochMs);
+            const p = partsInTimezone(date, timezone);
+            const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+            return asUtc - epochMs;
+        }
+
+        function parseDateTimeText(text) {
+            const m = text.trim().match(/^(\d{4})[-\/](\d{2})[-\/](\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+            if (!m) {
+                return null;
+            }
+            return {
+                year: Number(m[1]),
+                month: Number(m[2]),
+                day: Number(m[3]),
+                hour: Number(m[4]),
+                minute: Number(m[5]),
+                second: Number(m[6] || 0)
+            };
+        }
+
+        function zonedDateTimeToEpochMs(parts, timezone) {
+            const guessUtc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+            const offset1 = timezoneOffsetMs(guessUtc, timezone);
+            const pass1 = guessUtc - offset1;
+            const offset2 = timezoneOffsetMs(pass1, timezone);
+            return guessUtc - offset2;
+        }
+
+        function updateCurrentTimestamp() {
+            const nowMs = Date.now();
+            if (state.currentUnit === "s") {
+                currentTs.textContent = String(Math.floor(nowMs / 1000));
+                currentUnit.textContent = "秒";
+            } else {
+                currentTs.textContent = String(nowMs);
+                currentUnit.textContent = "毫秒";
+            }
+        }
+
+        function startTicker() {
+            if (state.timerId) {
+                clearInterval(state.timerId);
+            }
+            state.timerId = setInterval(updateCurrentTimestamp, 100);
+            updateCurrentTimestamp();
+            state.tickerRunning = true;
+            toggleTickerBtn.textContent = "停止";
+            toggleTickerBtn.classList.add("danger");
+        }
+
+        function stopTicker() {
+            if (state.timerId) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+            }
+            state.tickerRunning = false;
+            toggleTickerBtn.textContent = "开始";
+            toggleTickerBtn.classList.remove("danger");
+        }
+
+        function showStatus(text) {
+            copyStatus.textContent = text;
+            setTimeout(() => {
+                if (copyStatus.textContent === text) {
+                    copyStatus.textContent = "";
+                }
+            }, 1600);
+        }
+
+        async function copyCurrentTimestamp() {
+            const value = currentTs.textContent;
+            try {
+                await navigator.clipboard.writeText(value);
+                showStatus("已复制当前时间戳");
+            } catch (error) {
+                showStatus("复制失败，请手动复制");
+            }
+        }
+
+        function convertTimestampToDateTime() {
+            const raw = tsInput.value.trim();
+            if (!raw) {
+                tsResult.value = "";
+                return;
+            }
+
+            const num = Number(raw);
+            if (!Number.isFinite(num)) {
+                tsResult.value = "请输入有效数字";
+                return;
+            }
+
+            const ms = tsUnitSelect.value === "s" ? num * 1000 : num;
+            tsResult.value = formatDateTime(ms, tsTimezone.value);
+        }
+
+        function convertDateTimeToTimestamp() {
+            const raw = dtInput.value.trim();
+            if (!raw) {
+                dtResult.value = "";
+                return;
+            }
+
+            const parsed = parseDateTimeText(raw);
+            if (!parsed) {
+                dtResult.value = "格式应为 YYYY-MM-DD HH:mm:ss";
+                return;
+            }
+
+            const ms = zonedDateTimeToEpochMs(parsed, dtTimezone.value);
+            dtResult.value = dtOutputUnit.value === "s" ? String(Math.floor(ms / 1000)) : String(ms);
+        }
+
+        function convertBatch() {
+            const lines = batchInput.value.split(/\r?\n/);
+            const timezone = batchTimezone.value;
+            const mode = batchMode.value;
+
+            const output = lines.map((line) => {
+                const raw = line.trim();
+                if (!raw) {
+                    return "";
+                }
+
+                if (mode === "ts_to_dt") {
+                    const num = Number(raw);
+                    if (!Number.isFinite(num)) {
+                        return `[错误] 非数字时间戳: ${raw}`;
+                    }
+                    const ms = batchTsUnit.value === "s" ? num * 1000 : num;
+                    return formatDateTime(ms, timezone);
+                }
+
+                const parsed = parseDateTimeText(raw);
+                if (!parsed) {
+                    return `[错误] 格式错误: ${raw}`;
+                }
+
+                const ms = zonedDateTimeToEpochMs(parsed, timezone);
+                return batchOutUnit.value === "s" ? String(Math.floor(ms / 1000)) : String(ms);
+            });
+
+            batchOutput.value = output.join("\n");
+        }
+
+        function switchTab(tabName) {
+            const tabButtons = document.querySelectorAll(".tab-btn");
+            const tabPanels = document.querySelectorAll(".tab-panel");
+
+            tabButtons.forEach((btn) => {
+                const active = btn.dataset.tab === tabName;
+                btn.classList.toggle("active", active);
+            });
+
+            tabPanels.forEach((panel) => {
+                const active = panel.id === `tab-${tabName}`;
+                panel.classList.toggle("active", active);
+            });
+        }
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+            btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+        });
+
+        toggleUnitBtn.addEventListener("click", () => {
+            state.currentUnit = state.currentUnit === "s" ? "ms" : "s";
+            updateCurrentTimestamp();
+        });
+
+        copyCurrentBtn.addEventListener("click", copyCurrentTimestamp);
+
+        toggleTickerBtn.addEventListener("click", () => {
+            if (state.tickerRunning) {
+                stopTicker();
+            } else {
+                startTicker();
+            }
+        });
+
+        convertTsBtn.addEventListener("click", convertTimestampToDateTime);
+        tsInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                convertTimestampToDateTime();
+            }
+        });
+
+        convertDtBtn.addEventListener("click", convertDateTimeToTimestamp);
+        dtInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                convertDateTimeToTimestamp();
+            }
+        });
+
+        batchConvertBtn.addEventListener("click", convertBatch);
+
+        [batchMode, batchTsUnit, batchTimezone, batchOutUnit].forEach((el) => {
+            el.addEventListener("change", convertBatch);
+        });
+
+        [tsTimezone, tsUnitSelect].forEach((el) => {
+            el.addEventListener("change", convertTimestampToDateTime);
+        });
+
+        [dtTimezone, dtOutputUnit].forEach((el) => {
+            el.addEventListener("change", convertDateTimeToTimestamp);
+        });
+
+        fillTimezoneSelect(tsTimezone);
+        fillTimezoneSelect(dtTimezone);
+        fillTimezoneSelect(batchTimezone);
+
+        const now = Date.now();
+        tsInput.value = String(Math.floor(now / 1000));
+        dtInput.value = formatDateTime(now, "Asia/Shanghai");
+
+        startTicker();
+        convertTimestampToDateTime();
+        convertDateTimeToTimestamp();
+    </script>
+</body>
+</html>
