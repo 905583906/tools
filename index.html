@@ -41,35 +41,74 @@
             display: flex;
             flex-direction: column;
             transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
         }
 
         header {
             background-color: var(--bg-secondary);
-            padding: 1rem 2rem;
+            padding: 0.4rem 1rem;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
         .theme-toggle {
-            background-color: var(--button-bg);
-            color: white;
+            background: none;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
+            font-size: 1.3rem;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
+            padding: 0.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            line-height: 1;
         }
 
         .theme-toggle:hover {
-            background-color: var(--button-hover);
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
 
         .container {
@@ -79,10 +118,19 @@
         }
 
         .panel {
-            flex: 1;
             display: flex;
             flex-direction: column;
             padding: 1rem;
+            min-width: 200px;
+            overflow: hidden;
+        }
+
+        .panel.left {
+            width: 50%;
+        }
+
+        .panel.right {
+            flex: 1;
         }
 
         .panel-title {
@@ -125,8 +173,11 @@
         }
 
         .divider {
-            width: 1px;
-            background-color: var(--border-color);
+            width: 2px;
+            background-color: transparent;
+            cursor: col-resize;
+            position: relative;
+            flex-shrink: 0;
         }
 
         .json-key {
@@ -173,18 +224,20 @@
 <body>
     <header>
         <h1>JSON Parser</h1>
-        <button class="theme-toggle" id="themeToggle">Toggle Dark Mode</button>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+            <span id="themeIcon">🌙</span>
+        </button>
     </header>
 
     <div class="container">
-        <div class="panel">
+        <div class="panel left" id="leftPanel">
             <div class="panel-title">Input JSON</div>
             <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
         </div>
 
-        <div class="divider"></div>
+        <div class="divider" id="divider"></div>
 
-        <div class="panel">
+        <div class="panel right" id="rightPanel">
             <div class="panel-title">Formatted Output</div>
             <pre id="jsonOutput">Formatted JSON will appear here...</pre>
         </div>
@@ -194,17 +247,77 @@
         const jsonInput = document.getElementById('jsonInput');
         const jsonOutput = document.getElementById('jsonOutput');
         const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const divider = document.getElementById('divider');
+        const leftPanel = document.getElementById('leftPanel');
+        const container = document.querySelector('.container');
 
-        // Load theme preference
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        // System theme detection and auto-adaptation
+        function getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon(theme);
+        }
+
+        // Initialize theme: use saved preference, otherwise use system preference
+        const savedTheme = localStorage.getItem('theme');
+        const initialTheme = savedTheme || getSystemTheme();
+        applyTheme(initialTheme);
+
+        // Listen for system theme changes (only if no saved preference)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
 
         // Theme toggle
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
+            applyTheme(newTheme);
             localStorage.setItem('theme', newTheme);
+        });
+
+        // Resizable divider functionality
+        let isResizing = false;
+
+        divider.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const newLeftWidth = e.clientX - containerRect.left;
+            const containerWidth = containerRect.width;
+
+            // Set minimum and maximum widths (20% to 80%)
+            const minWidth = containerWidth * 0.2;
+            const maxWidth = containerWidth * 0.8;
+
+            if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
+                const percentage = (newLeftWidth / containerWidth) * 100;
+                leftPanel.style.width = percentage + '%';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
         });
 
         // JSON parsing and formatting
