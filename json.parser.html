@@ -185,44 +185,67 @@
             flex-shrink: 0;
         }
 
-        .json-key {
-            color: #0451a5;
+        .json-key { color: #0451a5; }
+        [data-theme="dark"] .json-key { color: #9cdcfe; }
+
+        .json-string { color: #a31515; }
+        [data-theme="dark"] .json-string { color: #ce9178; }
+
+        .json-number { color: #098658; }
+        [data-theme="dark"] .json-number { color: #b5cea8; }
+
+        .json-boolean { color: #0000ff; }
+        [data-theme="dark"] .json-boolean { color: #569cd6; }
+
+        .json-null { color: #0000ff; }
+        [data-theme="dark"] .json-null { color: #569cd6; }
+
+        /* Collapsible tree */
+        .json-tree {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
 
-        [data-theme="dark"] .json-key {
-            color: #9cdcfe;
+        .json-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1;
+            vertical-align: middle;
+            margin-right: 3px;
+            flex-shrink: 0;
+            background: var(--bg-primary);
         }
 
-        .json-string {
-            color: #a31515;
+        .json-toggle:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
         }
 
-        [data-theme="dark"] .json-string {
-            color: #ce9178;
+        .json-children {
+            padding-left: 1.4em;
+            border-left: 1px solid var(--border-color);
+            margin-left: 0.2em;
         }
 
-        .json-number {
-            color: #098658;
+        .json-children.collapsed {
+            display: none;
         }
 
-        [data-theme="dark"] .json-number {
-            color: #b5cea8;
-        }
-
-        .json-boolean {
-            color: #0000ff;
-        }
-
-        [data-theme="dark"] .json-boolean {
-            color: #569cd6;
-        }
-
-        .json-null {
-            color: #0000ff;
-        }
-
-        [data-theme="dark"] .json-null {
-            color: #569cd6;
+        .json-collapsed-hint {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.85em;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -244,7 +267,7 @@
 
         <div class="panel right" id="rightPanel">
             <div class="panel-title">Formatted Output</div>
-            <pre id="jsonOutput">Formatted JSON will appear here...</pre>
+            <pre id="jsonOutput"><span style="color:var(--text-secondary)">Formatted JSON will appear here...</span></pre>
         </div>
     </div>
 
@@ -257,66 +280,41 @@
         const leftPanel = document.getElementById('leftPanel');
         const container = document.querySelector('.container');
 
-        // System theme detection and auto-adaptation
+        // Theme
         function getSystemTheme() {
             return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
-
         function updateThemeIcon(theme) {
             themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
         }
-
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             updateThemeIcon(theme);
         }
-
-        // Initialize theme: use saved preference, otherwise use system preference
         const savedTheme = localStorage.getItem('theme');
-        const initialTheme = savedTheme || getSystemTheme();
-        applyTheme(initialTheme);
-
-        // Listen for system theme changes (only if no saved preference)
+        applyTheme(savedTheme || getSystemTheme());
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('theme')) {
-                applyTheme(e.matches ? 'dark' : 'light');
-            }
+            if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
         });
-
-        // Theme toggle
         themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme);
             localStorage.setItem('theme', newTheme);
         });
 
-        // Resizable divider functionality
+        // Resizable divider
         let isResizing = false;
-
-        divider.addEventListener('mousedown', (e) => {
+        divider.addEventListener('mousedown', () => {
             isResizing = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
         });
-
         document.addEventListener('mousemove', (e) => {
             if (!isResizing) return;
-
-            const containerRect = container.getBoundingClientRect();
-            const newLeftWidth = e.clientX - containerRect.left;
-            const containerWidth = containerRect.width;
-
-            // Set minimum and maximum widths (20% to 80%)
-            const minWidth = containerWidth * 0.2;
-            const maxWidth = containerWidth * 0.8;
-
-            if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
-                const percentage = (newLeftWidth / containerWidth) * 100;
-                leftPanel.style.width = percentage + '%';
-            }
+            const rect = container.getBoundingClientRect();
+            const pct = ((e.clientX - rect.left) / rect.width) * 100;
+            if (pct >= 20 && pct <= 80) leftPanel.style.width = pct + '%';
         });
-
         document.addEventListener('mouseup', () => {
             if (isResizing) {
                 isResizing = false;
@@ -325,51 +323,95 @@
             }
         });
 
-        // JSON parsing and formatting
-        function syntaxHighlight(json) {
-            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-                let cls = 'json-number';
-                if (/^"/.test(match)) {
-                    if (/:$/.test(match)) {
-                        cls = 'json-key';
-                    } else {
-                        cls = 'json-string';
-                    }
-                } else if (/true|false/.test(match)) {
-                    cls = 'json-boolean';
-                } else if (/null/.test(match)) {
-                    cls = 'json-null';
-                }
-                return '<span class="' + cls + '">' + match + '</span>';
+        // JSON tree renderer
+        let uid = 0;
+
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function renderVal(val, isLast) {
+            const trail = isLast ? '' : ',';
+            if (val === null) return `<span class="json-null">null</span>${trail}`;
+            const t = typeof val;
+            if (t === 'boolean') return `<span class="json-boolean">${val}</span>${trail}`;
+            if (t === 'number') return `<span class="json-number">${val}</span>${trail}`;
+            if (t === 'string') return `<span class="json-string">"${esc(val)}"</span>${trail}`;
+            if (t === 'object') return renderObj(val, isLast);
+            return esc(String(val)) + trail;
+        }
+
+        function renderObj(obj, isLast) {
+            const isArr = Array.isArray(obj);
+            const open = isArr ? '[' : '{';
+            const close = isArr ? ']' : '}';
+            const keys = isArr ? null : Object.keys(obj);
+            const len = isArr ? obj.length : keys.length;
+            const trail = isLast ? '' : ',';
+
+            if (len === 0) return `${open}${close}${trail}`;
+
+            const id = 'n' + (++uid);
+            const hint = isArr ? `${len} item${len > 1 ? 's' : ''}` : `${len} key${len > 1 ? 's' : ''}`;
+
+            let rows = '';
+            if (isArr) {
+                obj.forEach((item, i) => {
+                    rows += `<div>${renderVal(item, i === len - 1)}</div>`;
+                });
+            } else {
+                keys.forEach((k, i) => {
+                    rows += `<div><span class="json-key">"${esc(k)}"</span>: ${renderVal(obj[k], i === len - 1)}</div>`;
+                });
+            }
+
+            return `${open}<span class="json-toggle" data-id="${id}" title="Collapse">&#8722;</span>` +
+                   `<span id="${id}h" class="json-collapsed-hint" data-id="${id}" style="display:none"> ${hint} </span>` +
+                   `<span id="${id}c" style="display:none">${close}${trail}</span>` +
+                   `<div class="json-children" id="${id}">${rows}</div>` +
+                   `<span id="${id}e">${close}${trail}</span>`;
+        }
+
+        function bindToggles() {
+            jsonOutput.querySelectorAll('.json-toggle, .json-collapsed-hint').forEach(el => {
+                el.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const children = document.getElementById(id);
+                    const hint = document.getElementById(id + 'h');
+                    const inlineClose = document.getElementById(id + 'c');
+                    const endClose = document.getElementById(id + 'e');
+                    const toggle = jsonOutput.querySelector('.json-toggle[data-id="' + id + '"]');
+                    const collapsed = children.classList.toggle('collapsed');
+                    toggle.classList.toggle('collapsed', collapsed);
+                    toggle.title = collapsed ? 'Expand' : 'Collapse';
+                    toggle.innerHTML = collapsed ? '&#43;' : '&#8722;';
+                    hint.style.display = collapsed ? '' : 'none';
+                    inlineClose.style.display = collapsed ? '' : 'none';
+                    endClose.style.display = collapsed ? 'none' : '';
+                });
             });
         }
 
         function parseJSON() {
             const input = jsonInput.value.trim();
-
             if (!input) {
-                jsonOutput.innerHTML = 'Formatted JSON will appear here...';
+                jsonOutput.innerHTML = '<span style="color:var(--text-secondary)">Formatted JSON will appear here...</span>';
                 jsonOutput.className = '';
                 return;
             }
-
             try {
+                uid = 0;
                 const parsed = JSON.parse(input);
-                const formatted = JSON.stringify(parsed, null, 2);
-                const highlighted = syntaxHighlight(formatted);
-                jsonOutput.innerHTML = highlighted;
+                jsonOutput.innerHTML = '<div class="json-tree">' + renderVal(parsed, true) + '</div>';
                 jsonOutput.className = '';
-            } catch (error) {
-                jsonOutput.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+                bindToggles();
+            } catch (e) {
+                jsonOutput.innerHTML = '<div class="error"><strong>Error:</strong> ' + esc(e.message) + '</div>';
                 jsonOutput.className = 'error';
             }
         }
 
-        // Parse on input
         jsonInput.addEventListener('input', parseJSON);
-
-        // Initial parse if there's content
         parseJSON();
     </script>
 </body>
