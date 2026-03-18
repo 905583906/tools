@@ -6,25 +6,10 @@ A zero-dependency collection of static front-end utilities for common developmen
 
 ## Live Demo
 
-- Home: [https://905583906.github.io/tools/](https://905583906.github.io/tools/)
 - JSON Parser: [https://905583906.github.io/tools/json.parser.html](https://905583906.github.io/tools/json.parser.html)
 - Timestamp Converter: [https://905583906.github.io/tools/timestamp.converter.html](https://905583906.github.io/tools/timestamp.converter.html)
 - RGB HEX Converter: [https://905583906.github.io/tools/rgb.hex.converter.html](https://905583906.github.io/tools/rgb.hex.converter.html)
 - Code Diff: [https://905583906.github.io/tools/code.diff.html](https://905583906.github.io/tools/code.diff.html)
-
-## Screenshots
-
-| Home | JSON Parser |
-| --- | --- |
-| ![Home](./assets/screenshots/home.png) | ![JSON Parser](./assets/screenshots/json-parser.png) |
-
-| Timestamp Converter | RGB HEX Converter |
-| --- | --- |
-| ![Timestamp Converter](./assets/screenshots/timestamp-converter.png) | ![RGB HEX Converter](./assets/screenshots/rgb-hex-converter.png) |
-
-| Code Diff |
-| --- |
-| ![Code Diff](./assets/screenshots/code-diff.png) |
 
 ## Overview
 

@@ -6,25 +6,10 @@
 
 ## 在线访问
 
-- 首页: [https://905583906.github.io/tools/](https://905583906.github.io/tools/)
 - JSON Parser: [https://905583906.github.io/tools/json.parser.html](https://905583906.github.io/tools/json.parser.html)
 - Timestamp Converter: [https://905583906.github.io/tools/timestamp.converter.html](https://905583906.github.io/tools/timestamp.converter.html)
 - RGB HEX Converter: [https://905583906.github.io/tools/rgb.hex.converter.html](https://905583906.github.io/tools/rgb.hex.converter.html)
 - Code Diff: [https://905583906.github.io/tools/code.diff.html](https://905583906.github.io/tools/code.diff.html)
-
-## 截图
-
-| 首页 | JSON Parser |
-| --- | --- |
-| ![首页](./assets/screenshots/home.png) | ![JSON Parser](./assets/screenshots/json-parser.png) |
-
-| 时间戳转换 | RGB HEX Converter |
-| --- | --- |
-| ![时间戳转换](./assets/screenshots/timestamp-converter.png) | ![RGB HEX Converter](./assets/screenshots/rgb-hex-converter.png) |
-
-| Code Diff |
-| --- |
-| ![Code Diff](./assets/screenshots/code-diff.png) |
 
 ## 项目简介
 
