@@ -279,6 +279,22 @@
         const divider = document.getElementById('divider');
         const leftPanel = document.getElementById('leftPanel');
         const container = document.querySelector('.container');
+        const defaultJsonSample = JSON.stringify({
+            project: 'tools',
+            description: 'A static toolbox for everyday development tasks',
+            tools: [
+                'JSON Parser',
+                'Timestamp Converter',
+                'RGB HEX Converter',
+                'Code Diff'
+            ],
+            metadata: {
+                pages: 4,
+                deploy: 'GitHub Pages',
+                static: true
+            },
+            active: true
+        }, null, 2);
 
         // Theme
         function getSystemTheme() {
@@ -412,6 +428,7 @@
         }
 
         jsonInput.addEventListener('input', parseJSON);
+        jsonInput.value = defaultJsonSample;
         parseJSON();
     </script>
 </body>
