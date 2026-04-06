@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 图片转换</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-tertiary: #f9fafb;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --button-bg: #2196f3;
+            --button-hover: #1976d2;
+            --button-muted: #eef2f7;
+            --button-muted-hover: #e1e7ef;
+            --success-color: #0f9d58;
+            --error-color: #d32f2f;
+            --shadow-color: rgba(15, 23, 42, 0.06);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d30;
+            --text-primary: #d4d4d4;
+            --text-secondary: #9d9d9d;
+            --border-color: #3e3e42;
+            --button-bg: #0e639c;
+            --button-hover: #1177bb;
+            --button-muted: #313138;
+            --button-muted-hover: #3a3a43;
+            --success-color: #52d18c;
+            --error-color: #f48771;
+            --shadow-color: rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            gap: 1rem;
+        }
+
+        .title-wrap {
+            display: grid;
+            gap: 0.12rem;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            min-width: 240px;
+            overflow: hidden;
+            gap: 0.75rem;
+        }
+
+        .panel.left {
+            width: 48%;
+            padding-right: 0.5rem;
+        }
+
+        .panel.right {
+            flex: 1;
+            padding-left: 0.5rem;
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .panel-hint {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .divider {
+            width: 2px;
+            background-color: transparent;
+            cursor: col-resize;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .preview-card,
+        .editor-card,
+        .meta-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .preview-card {
+            flex: 1;
+            overflow: hidden;
+            min-height: 260px;
+        }
+
+        .upload-zone {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at top left, rgba(33, 150, 243, 0.08), transparent 28%),
+                linear-gradient(135deg, transparent 0%, rgba(148, 163, 184, 0.06) 100%);
+            transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+            cursor: pointer;
+        }
+
+        .upload-zone.dragover {
+            background:
+                radial-gradient(circle at top left, rgba(33, 150, 243, 0.16), transparent 35%),
+                linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(148, 163, 184, 0.08) 100%);
+        }
+
+        .upload-placeholder,
+        .preview-stage {
+            width: 100%;
+            height: 100%;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .upload-placeholder {
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 1.5rem;
+            gap: 1rem;
+        }
+
+        .placeholder-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
+            background: var(--button-bg);
+            color: #ffffff;
+            font-weight: 600;
+            min-width: 126px;
+        }
+
+        .placeholder-text {
+            display: grid;
+            gap: 0.35rem;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .preview-stage {
+            display: none;
+            padding: 0.75rem;
+            overflow: auto;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%, transparent 75%, rgba(148, 163, 184, 0.08) 75%),
+                linear-gradient(45deg, rgba(148, 163, 184, 0.08) 25%, transparent 25%, transparent 75%, rgba(148, 163, 184, 0.08) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        .preview-stage.active {
+            display: flex;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+            background: #ffffff;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border-color);
+            background: var(--button-muted);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 0.72rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--button-muted-hover);
+            border-color: var(--text-secondary);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .btn.primary {
+            background: var(--button-bg);
+            color: #ffffff;
+            border-color: var(--button-bg);
+        }
+
+        .btn.primary:hover:not(:disabled) {
+            background: var(--button-hover);
+            border-color: var(--button-hover);
+        }
+
+        .btn.ghost {
+            background: transparent;
+        }
+
+        .meta-card {
+            padding: 0.9rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .meta-item {
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .meta-label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-value {
+            font-size: 0.92rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .option-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .segmented {
+            display: inline-flex;
+            padding: 0.25rem;
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .segmented input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .segmented label {
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            user-select: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .segmented input:checked + label {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .editor-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: "Cascadia Mono", "Consolas", "Monaco", "Courier New", monospace;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            background: transparent;
+            color: var(--text-primary);
+            resize: none;
+            overflow: auto;
+        }
+
+        textarea:focus {
+            outline: 2px solid var(--button-bg);
+            outline-offset: -2px;
+        }
+
+        .status {
+            min-height: 22px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .status.success {
+            color: var(--success-color);
+        }
+
+        .status.error {
+            color: var(--error-color);
+        }
+
+        .helper {
+            font-size: 0.82rem;
+            line-height: 1.55;
+            color: var(--text-secondary);
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        @media (max-width: 960px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow: auto;
+            }
+
+            .container {
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            .panel.left,
+            .panel.right {
+                width: 100%;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .divider {
+                width: 100%;
+                height: 2px;
+                cursor: row-resize;
+            }
+
+            .preview-card {
+                min-height: 320px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-row {
+                gap: 0.6rem;
+            }
+
+            .btn {
+                flex: 1 1 calc(50% - 0.6rem);
+                text-align: center;
+            }
+
+            .segmented {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .segmented label {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title-wrap">
+            <h1>Base64 图片转换</h1>
+            <div class="subtitle">纯静态页面，适合直接部署到 GitHub Pages</div>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="切换主题">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <section class="panel left" id="leftPanel">
+            <div class="panel-title">
+                <span>图片上传与预览</span>
+                <span class="panel-hint">支持点击、拖拽、粘贴图片</span>
+            </div>
+
+            <div class="preview-card">
+                <div class="upload-zone" id="uploadZone" tabindex="0" role="button" aria-label="上传图片">
+                    <div class="upload-placeholder" id="uploadPlaceholder">
+                        <span class="placeholder-badge">上传图片</span>
+                        <div class="placeholder-text">
+                            <div>支持 PNG、JPG、JPEG、GIF、BMP、WEBP、ICO、SVG</div>
+                            <div>建议单图不要过大，Base64 体积通常会增加约 33%</div>
+                        </div>
+                    </div>
+                    <div class="preview-stage" id="previewStage">
+                        <img id="previewImage" class="preview-image" alt="图片预览">
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-row">
+                <button id="uploadBtn" class="btn primary" type="button">选择图片</button>
+                <button id="downloadBtn" class="btn" type="button" disabled>下载当前图片</button>
+                <button id="clearBtn" class="btn ghost" type="button">清空内容</button>
+            </div>
+
+            <div class="meta-card">
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <div class="meta-label">来源</div>
+                        <div id="metaSource" class="meta-value">未加载</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">文件名</div>
+                        <div id="metaName" class="meta-value">-</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">格式</div>
+                        <div id="metaType" class="meta-value">-</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">尺寸</div>
+                        <div id="metaSize" class="meta-value">-</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">图片宽高</div>
+                        <div id="metaDimension" class="meta-value">-</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Base64 长度</div>
+                        <div id="metaLength" class="meta-value">-</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider" id="divider"></div>
+
+        <section class="panel right">
+            <div class="panel-title">
+                <span>Base64 编码</span>
+                <span class="panel-hint">支持 Data URL 与纯 Base64 双向还原</span>
+            </div>
+
+            <div class="option-row">
+                <span class="panel-hint">图片转码输出：</span>
+                <div class="segmented">
+                    <input id="outputModeDataUrl" name="outputMode" type="radio" value="data-url" checked>
+                    <label for="outputModeDataUrl">Data URL</label>
+                    <input id="outputModeRaw" name="outputMode" type="radio" value="raw">
+                    <label for="outputModeRaw">纯 Base64</label>
+                </div>
+            </div>
+
+            <div class="editor-card">
+                <textarea id="base64Input" spellcheck="false" placeholder="可直接粘贴 Data URL 或纯 Base64 内容，例如：data:image/png;base64,iVBORw0KGgo..."></textarea>
+            </div>
+
+            <div class="controls-row">
+                <button id="imageToBase64Btn" class="btn primary" type="button">图片转成 Base64</button>
+                <button id="base64ToImageBtn" class="btn primary" type="button">Base64 还原图片</button>
+                <button id="copyBtn" class="btn" type="button">复制 Base64</button>
+            </div>
+
+            <div id="statusMessage" class="status">等待操作</div>
+
+            <div class="helper">
+                左侧可上传图片，也可以在右侧直接粘贴 Base64。还原时会自动识别常见图片格式并回显到左侧预览区。
+            </div>
+        </section>
+    </div>
+
+    <input id="fileInput" class="hidden-input" type="file" accept="image/*">
+
+    <script>
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+        const container = document.querySelector(".container");
+        const divider = document.getElementById("divider");
+        const leftPanel = document.getElementById("leftPanel");
+
+        const uploadZone = document.getElementById("uploadZone");
+        const uploadPlaceholder = document.getElementById("uploadPlaceholder");
+        const previewStage = document.getElementById("previewStage");
+        const previewImage = document.getElementById("previewImage");
+        const fileInput = document.getElementById("fileInput");
+
+        const uploadBtn = document.getElementById("uploadBtn");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const imageToBase64Btn = document.getElementById("imageToBase64Btn");
+        const base64ToImageBtn = document.getElementById("base64ToImageBtn");
+        const copyBtn = document.getElementById("copyBtn");
+        const base64Input = document.getElementById("base64Input");
+        const statusMessage = document.getElementById("statusMessage");
+
+        const metaSource = document.getElementById("metaSource");
+        const metaName = document.getElementById("metaName");
+        const metaType = document.getElementById("metaType");
+        const metaSize = document.getElementById("metaSize");
+        const metaDimension = document.getElementById("metaDimension");
+        const metaLength = document.getElementById("metaLength");
+
+        let currentImage = null;
+        let isResizing = false;
+
+        function getSystemTheme() {
+            return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            updateThemeIcon(theme);
+        }
+
+        const savedTheme = localStorage.getItem("theme");
+        applyTheme(savedTheme || getSystemTheme());
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+            if (!localStorage.getItem("theme")) {
+                applyTheme(event.matches ? "dark" : "light");
+            }
+        });
+        themeToggle.addEventListener("click", () => {
+            const nextTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            applyTheme(nextTheme);
+            localStorage.setItem("theme", nextTheme);
+        });
+
+        divider.addEventListener("mousedown", () => {
+            if (window.innerWidth <= 960) {
+                return;
+            }
+            isResizing = true;
+            document.body.style.cursor = "col-resize";
+            document.body.style.userSelect = "none";
+        });
+
+        document.addEventListener("mousemove", (event) => {
+            if (!isResizing) {
+                return;
+            }
+            const rect = container.getBoundingClientRect();
+            const percent = ((event.clientX - rect.left) / rect.width) * 100;
+            if (percent >= 28 && percent <= 72) {
+                leftPanel.style.width = percent + "%";
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            if (!isResizing) {
+                return;
+            }
+            isResizing = false;
+            document.body.style.cursor = "";
+            document.body.style.userSelect = "";
+        });
+
+        function setStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = "status";
+            if (type) {
+                statusMessage.classList.add(type);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (!Number.isFinite(bytes) || bytes <= 0) {
+                return "0 B";
+            }
+            const units = ["B", "KB", "MB", "GB"];
+            const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            const value = bytes / Math.pow(1024, index);
+            return `${value >= 100 ? value.toFixed(0) : value.toFixed(value >= 10 ? 1 : 2)} ${units[index]}`;
+        }
+
+        function sanitizeFileName(name) {
+            return (name || "image").replace(/[\\/:*?\"<>|]+/g, "-");
+        }
+
+        function mimeToExtension(mime) {
+            const map = {
+                "image/png": "png",
+                "image/jpeg": "jpg",
+                "image/gif": "gif",
+                "image/bmp": "bmp",
+                "image/webp": "webp",
+                "image/x-icon": "ico",
+                "image/vnd.microsoft.icon": "ico",
+                "image/svg+xml": "svg"
+            };
+            return map[mime] || "png";
+        }
+
+        function inferMimeFromBytes(bytes) {
+            if (bytes.length >= 8 &&
+                bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 &&
+                bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
+                return "image/png";
+            }
+            if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+                return "image/jpeg";
+            }
+            if (bytes.length >= 6 &&
+                bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 &&
+                bytes[3] === 0x38 && (bytes[4] === 0x37 || bytes[4] === 0x39) && bytes[5] === 0x61) {
+                return "image/gif";
+            }
+            if (bytes.length >= 2 && bytes[0] === 0x42 && bytes[1] === 0x4d) {
+                return "image/bmp";
+            }
+            if (bytes.length >= 12 &&
+                bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+                bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) {
+                return "image/webp";
+            }
+            if (bytes.length >= 4 && bytes[0] === 0x00 && bytes[1] === 0x00 && bytes[2] === 0x01 && bytes[3] === 0x00) {
+                return "image/x-icon";
+            }
+            return "image/png";
+        }
+
+        function updatePreviewVisibility(hasImage) {
+            uploadPlaceholder.style.display = hasImage ? "none" : "grid";
+            previewStage.classList.toggle("active", hasImage);
+            downloadBtn.disabled = !hasImage;
+        }
+
+        function updateMeta(info) {
+            metaSource.textContent = info.source || "未加载";
+            metaName.textContent = info.name || "-";
+            metaType.textContent = info.type || "-";
+            metaSize.textContent = info.size || "-";
+            metaDimension.textContent = info.dimension || "-";
+            metaLength.textContent = info.length || "-";
+        }
+
+        function resetMeta() {
+            updateMeta({
+                source: "未加载",
+                name: "-",
+                type: "-",
+                size: "-",
+                dimension: "-",
+                length: "-"
+            });
+        }
+
+        function getRawBase64(dataUrl) {
+            const marker = ";base64,";
+            const index = dataUrl.indexOf(marker);
+            return index >= 0 ? dataUrl.slice(index + marker.length) : "";
+        }
+
+        function getSelectedOutputMode() {
+            return document.querySelector('input[name="outputMode"]:checked').value;
+        }
+
+        function fillTextareaFromCurrentImage() {
+            if (!currentImage) {
+                setStatus("请先上传图片，再执行图片转 Base64。", "error");
+                return;
+            }
+
+            const outputMode = getSelectedOutputMode();
+            base64Input.value = outputMode === "raw" ? currentImage.base64 : currentImage.dataUrl;
+            metaLength.textContent = `${currentImage.base64.length.toLocaleString()} 字符`;
+            setStatus(`已生成${outputMode === "raw" ? "纯 Base64" : "Data URL"}内容。`, "success");
+        }
+
+        function setCurrentImage(info) {
+            currentImage = info;
+            previewImage.src = info.dataUrl;
+            previewImage.alt = info.name || "图片预览";
+            updatePreviewVisibility(true);
+            updateMeta({
+                source: info.source,
+                name: info.name || "-",
+                type: info.type || "-",
+                size: formatBytes(info.byteSize),
+                dimension: `${info.width} × ${info.height}`,
+                length: `${info.base64.length.toLocaleString()} 字符`
+            });
+        }
+
+        function clearAll() {
+            currentImage = null;
+            previewImage.removeAttribute("src");
+            base64Input.value = "";
+            updatePreviewVisibility(false);
+            resetMeta();
+            fileInput.value = "";
+            setStatus("内容已清空。");
+        }
+
+        function loadImageFromDataUrl(dataUrl) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = () => resolve(image);
+                image.onerror = () => reject(new Error("图片数据无法解析，请检查 Base64 是否完整。"));
+                image.src = dataUrl;
+            });
+        }
+
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("文件读取失败，请重试。"));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleFile(file, source) {
+            if (!file || !file.type.startsWith("image/")) {
+                setStatus("请选择图片文件。", "error");
+                return;
+            }
+
+            try {
+                const dataUrl = await readFileAsDataUrl(file);
+                const image = await loadImageFromDataUrl(dataUrl);
+                setCurrentImage({
+                    source,
+                    name: sanitizeFileName(file.name),
+                    type: file.type || "image/*",
+                    byteSize: file.size,
+                    width: image.naturalWidth,
+                    height: image.naturalHeight,
+                    dataUrl,
+                    base64: getRawBase64(dataUrl)
+                });
+                setStatus("图片已加载，可以直接转成 Base64。", "success");
+            } catch (error) {
+                setStatus(error.message, "error");
+            }
+        }
+
+        function normalizeBase64Input(value) {
+            const trimmed = value.trim();
+            if (!trimmed) {
+                throw new Error("请输入 Base64 内容。");
+            }
+
+            const compact = trimmed.replace(/\s+/g, "");
+            const dataUrlMatch = compact.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
+            if (dataUrlMatch) {
+                return {
+                    mime: dataUrlMatch[1],
+                    base64: dataUrlMatch[2],
+                    dataUrl: `data:${dataUrlMatch[1]};base64,${dataUrlMatch[2]}`
+                };
+            }
+
+            if (!/^[A-Za-z0-9+/=]+$/.test(compact)) {
+                throw new Error("Base64 内容格式不正确，请检查是否包含非法字符。");
+            }
+
+            if (compact.length % 4 !== 0) {
+                throw new Error("Base64 长度不正确，请确认内容没有缺失。");
+            }
+
+            let binary;
+            try {
+                binary = atob(compact);
+            } catch (error) {
+                throw new Error("Base64 解码失败，请确认输入完整且有效。");
+            }
+
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i += 1) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+
+            const mime = inferMimeFromBytes(bytes);
+            return {
+                mime,
+                base64: compact,
+                dataUrl: `data:${mime};base64,${compact}`
+            };
+        }
+
+        async function restoreImageFromTextarea() {
+            try {
+                const normalized = normalizeBase64Input(base64Input.value);
+                const image = await loadImageFromDataUrl(normalized.dataUrl);
+                const extension = mimeToExtension(normalized.mime);
+                const approxBytes = Math.floor((normalized.base64.length * 3) / 4);
+                setCurrentImage({
+                    source: "Base64 还原",
+                    name: `restored-image.${extension}`,
+                    type: normalized.mime,
+                    byteSize: approxBytes,
+                    width: image.naturalWidth,
+                    height: image.naturalHeight,
+                    dataUrl: normalized.dataUrl,
+                    base64: normalized.base64
+                });
+                setStatus("Base64 已成功还原成图片。", "success");
+            } catch (error) {
+                setStatus(error.message, "error");
+            }
+        }
+
+        async function copyBase64() {
+            const text = base64Input.value.trim();
+            if (!text) {
+                setStatus("当前没有可复制的 Base64 内容。", "error");
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(text);
+                setStatus("Base64 已复制到剪贴板。", "success");
+            } catch (error) {
+                setStatus("复制失败。请在浏览器允许剪贴板权限后重试。", "error");
+            }
+        }
+
+        function downloadCurrentImage() {
+            if (!currentImage) {
+                setStatus("当前没有可下载的图片。", "error");
+                return;
+            }
+
+            const link = document.createElement("a");
+            link.href = currentImage.dataUrl;
+            link.download = currentImage.name || `image.${mimeToExtension(currentImage.type)}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setStatus("已开始下载当前图片。", "success");
+        }
+
+        uploadBtn.addEventListener("click", () => fileInput.click());
+        uploadZone.addEventListener("click", () => fileInput.click());
+        uploadZone.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                fileInput.click();
+            }
+        });
+        fileInput.addEventListener("change", (event) => handleFile(event.target.files[0], "本地上传"));
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+            uploadZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                uploadZone.classList.add("dragover");
+            });
+        });
+
+        ["dragleave", "dragend", "drop"].forEach((eventName) => {
+            uploadZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                uploadZone.classList.remove("dragover");
+            });
+        });
+
+        uploadZone.addEventListener("drop", (event) => {
+            const [file] = event.dataTransfer.files;
+            handleFile(file, "拖拽上传");
+        });
+
+        document.addEventListener("paste", (event) => {
+            if (event.target === base64Input) {
+                return;
+            }
+            const items = Array.from(event.clipboardData?.items || []);
+            const imageItem = items.find((item) => item.type.startsWith("image/"));
+            if (!imageItem) {
+                return;
+            }
+            const file = imageItem.getAsFile();
+            handleFile(file, "剪贴板粘贴");
+        });
+
+        imageToBase64Btn.addEventListener("click", fillTextareaFromCurrentImage);
+        base64ToImageBtn.addEventListener("click", restoreImageFromTextarea);
+        copyBtn.addEventListener("click", copyBase64);
+        downloadBtn.addEventListener("click", downloadCurrentImage);
+        clearBtn.addEventListener("click", clearAll);
+
+        updatePreviewVisibility(false);
+        resetMeta();
+    </script>
+</body>
+</html>
