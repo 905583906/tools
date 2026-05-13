@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Formatter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --error-color: #d32f2f;
+            --button-bg: #2196F3;
+            --button-hover: #1976D2;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --text-primary: #d4d4d4;
+            --text-secondary: #9d9d9d;
+            --border-color: #3e3e42;
+            --error-color: #f48771;
+            --button-bg: #0e639c;
+            --button-hover: #1177bb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            min-width: 200px;
+            overflow: hidden;
+        }
+
+        .panel.left {
+            width: 50%;
+            padding-right: 0.5rem;
+        }
+
+        .panel.right {
+            flex: 1;
+            padding-left: 0.5rem;
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        textarea, pre {
+            flex: 1;
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            resize: none;
+            overflow: auto;
+        }
+
+        textarea:focus {
+            outline: 2px solid var(--button-bg);
+            outline-offset: -2px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .error {
+            color: var(--error-color);
+            padding: 1rem;
+            border: 1px solid var(--error-color);
+            border-radius: 4px;
+            background-color: var(--bg-secondary);
+        }
+
+        .divider {
+            width: 2px;
+            background-color: transparent;
+            cursor: col-resize;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .xml-tag { color: #800000; }
+        [data-theme="dark"] .xml-tag { color: #569cd6; }
+
+        .xml-name { color: #0451a5; }
+        [data-theme="dark"] .xml-name { color: #4ec9b0; }
+
+        .xml-attr { color: #ff0000; }
+        [data-theme="dark"] .xml-attr { color: #9cdcfe; }
+
+        .xml-string { color: #a31515; }
+        [data-theme="dark"] .xml-string { color: #ce9178; }
+
+        .xml-comment, .xml-cdata, .xml-doctype {
+            color: #008000;
+        }
+
+        [data-theme="dark"] .xml-comment,
+        [data-theme="dark"] .xml-cdata,
+        [data-theme="dark"] .xml-doctype {
+            color: #6a9955;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>XML Formatter</h1>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="panel left" id="leftPanel">
+            <div class="panel-title">Input XML</div>
+            <textarea id="xmlInput" placeholder="Paste your XML here..."></textarea>
+        </div>
+
+        <div class="divider" id="divider"></div>
+
+        <div class="panel right" id="rightPanel">
+            <div class="panel-title">Formatted Output</div>
+            <pre id="xmlOutput"><span style="color:var(--text-secondary)">Formatted XML will appear here...</span></pre>
+        </div>
+    </div>
+
+    <script>
+        const xmlInput = document.getElementById('xmlInput');
+        const xmlOutput = document.getElementById('xmlOutput');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const divider = document.getElementById('divider');
+        const leftPanel = document.getElementById('leftPanel');
+        const container = document.querySelector('.container');
+
+        function getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon(theme);
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        applyTheme(savedTheme || getSystemTheme());
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
+        });
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        let isResizing = false;
+        divider.addEventListener('mousedown', () => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const rect = container.getBoundingClientRect();
+            const pct = ((e.clientX - rect.left) / rect.width) * 100;
+            if (pct >= 20 && pct <= 80) leftPanel.style.width = pct + '%';
+        });
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+
+        function esc(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function normalizeInput(input) {
+            if (input.length >= 2 && input.startsWith('"') && input.endsWith('"')) {
+                try {
+                    const unquoted = JSON.parse(input);
+                    if (typeof unquoted === 'string') return unquoted.trim();
+                } catch (e) {
+                    return input.slice(1, -1).trim();
+                }
+            }
+            return input;
+        }
+
+        function validateXML(input) {
+            const doc = new DOMParser().parseFromString(input, 'application/xml');
+            const parserError = doc.querySelector('parsererror');
+            if (!parserError) return null;
+
+            const message = parserError.textContent.trim().replace(/\s+/g, ' ');
+            return message || 'Invalid XML document.';
+        }
+
+        function tokenizeXML(input) {
+            return input.match(/<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->|<!DOCTYPE[\s\S]*?>|<\/?[^>]+>|[^<]+/gi) || [];
+        }
+
+        function formatXML(input) {
+            const tokens = tokenizeXML(input.replace(/>\s+</g, '><'));
+            const lines = [];
+            let level = 0;
+            const indent = '  ';
+
+            tokens.forEach((rawToken) => {
+                const token = rawToken.trim();
+                if (!token) return;
+
+                const isClosing = /^<\//.test(token);
+                const isDeclaration = /^<\?/.test(token);
+                const isComment = /^<!--/.test(token);
+                const isCdata = /^<!\[CDATA\[/.test(token);
+                const isDoctype = /^<!DOCTYPE/i.test(token);
+                const isSelfClosing = /\/>$/.test(token);
+                const isOpening = /^<[^!?/][^>]*>$/.test(token) && !isSelfClosing;
+
+                if (isClosing) level = Math.max(level - 1, 0);
+                lines.push(indent.repeat(level) + token);
+                if (isOpening && !isDeclaration && !isComment && !isCdata && !isDoctype) level += 1;
+            });
+
+            return lines.join('\n');
+        }
+
+        function highlightTag(tag) {
+            if (/^&lt;!--/.test(tag)) return `<span class="xml-comment">${tag}</span>`;
+            if (/^&lt;!\[CDATA\[/.test(tag)) return `<span class="xml-cdata">${tag}</span>`;
+            if (/^&lt;!DOCTYPE/i.test(tag)) return `<span class="xml-doctype">${tag}</span>`;
+
+            return tag.replace(
+                /^(&lt;\/?|\?xml\s+|&lt;\?)([A-Za-z_][\w:.-]*)?([\s\S]*?)((\/)?&gt;|\?&gt;)$/,
+                (match, open, name = '', attrs = '', close) => {
+                    const highlightedAttrs = attrs.replace(
+                        /([A-Za-z_][\w:.-]*)(=)(&quot;.*?&quot;|'.*?')/g,
+                        '<span class="xml-attr">$1</span>$2<span class="xml-string">$3</span>'
+                    );
+                    return `<span class="xml-tag">${open}</span>` +
+                        (name ? `<span class="xml-name">${name}</span>` : '') +
+                        highlightedAttrs +
+                        `<span class="xml-tag">${close}</span>`;
+                }
+            );
+        }
+
+        function highlightXML(input) {
+            return esc(input).replace(/&lt;[\s\S]*?&gt;/g, highlightTag);
+        }
+
+        function parseXML() {
+            const input = normalizeInput(xmlInput.value.trim());
+            if (!input) {
+                xmlOutput.innerHTML = '<span style="color:var(--text-secondary)">Formatted XML will appear here...</span>';
+                xmlOutput.className = '';
+                return;
+            }
+
+            const error = validateXML(input);
+            if (error) {
+                xmlOutput.innerHTML = '<div class="error"><strong>Error:</strong> ' + esc(error) + '</div>';
+                xmlOutput.className = 'error';
+                return;
+            }
+
+            const formatted = formatXML(input);
+            xmlOutput.innerHTML = highlightXML(formatted);
+            xmlOutput.className = '';
+        }
+
+        xmlInput.addEventListener('input', parseXML);
+        parseXML();
+    </script>
+</body>
+</html>

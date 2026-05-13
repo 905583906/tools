@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add json.parser.html)",
+      "Bash(git commit -m \"feat: add collapsible tree view to JSON parser output\")",
+      "Bash(git push)"
+    ]
+  }
+}
