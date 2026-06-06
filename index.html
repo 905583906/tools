@@ -97,9 +97,9 @@
 
         .tool-card {
             position: relative;
-            min-height: 190px;
+            min-height: 168px;
             display: grid;
-            grid-template-rows: auto 1fr auto;
+            grid-template-rows: auto 1fr;
             gap: 18px;
             text-decoration: none;
             color: var(--text);
@@ -152,33 +152,6 @@
             color: var(--muted);
             line-height: 1.55;
             font-size: 0.92rem;
-        }
-
-        .tool-path {
-            display: inline-flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            width: 100%;
-            color: var(--ink);
-            background: var(--surface-soft);
-            border: 1px solid #e6eaf1;
-            border-radius: 8px;
-            padding: 9px 10px;
-            font-family: "Cascadia Mono", "Consolas", "Monaco", monospace;
-            font-size: 0.78rem;
-            word-break: break-all;
-        }
-
-        .tool-path svg {
-            flex: 0 0 auto;
-            width: 15px;
-            height: 15px;
-            stroke: var(--accent);
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
         }
 
         .accent-blue { --accent: var(--blue); }
@@ -240,10 +213,6 @@
                     <div class="tool-title">JSON 解析</div>
                     <div class="tool-desc">格式化、校验 JSON，并用树形结构快速查看字段。</div>
                 </div>
-                <div class="tool-path">
-                    <span>json.parser.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
-                </div>
             </a>
 
             <a class="tool-card accent-green" href="./xml.parser.html">
@@ -258,10 +227,6 @@
                     <div class="tool-title">XML 格式化</div>
                     <div class="tool-desc">校验 XML 内容，整理缩进并突出显示结构。</div>
                 </div>
-                <div class="tool-path">
-                    <span>xml.parser.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
-                </div>
             </a>
 
             <a class="tool-card accent-orange" href="./base64.image.converter.html">
@@ -275,10 +240,6 @@
                 <div>
                     <div class="tool-title">Base64 图片</div>
                     <div class="tool-desc">图片与 Base64 自动互转，支持上传、拖拽和粘贴。</div>
-                </div>
-                <div class="tool-path">
-                    <span>base64.image.converter.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
                 </div>
             </a>
 
@@ -296,10 +257,6 @@
                     <div class="tool-title">图片压缩</div>
                     <div class="tool-desc">批量压缩图片，可设置目标体积、尺寸和输出格式。</div>
                 </div>
-                <div class="tool-path">
-                    <span>image.compressor.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
-                </div>
             </a>
 
             <a class="tool-card accent-cyan" href="./timestamp.converter.html">
@@ -315,10 +272,6 @@
                     <div class="tool-title">时间戳转换</div>
                     <div class="tool-desc">秒、毫秒、日期时间和时区之间快速互转。</div>
                 </div>
-                <div class="tool-path">
-                    <span>timestamp.converter.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
-                </div>
             </a>
 
             <a class="tool-card accent-violet" href="./rgb.hex.converter.html">
@@ -331,10 +284,6 @@
                 <div>
                     <div class="tool-title">RGB / HEX</div>
                     <div class="tool-desc">颜色值双向转换，并实时预览转换结果。</div>
-                </div>
-                <div class="tool-path">
-                    <span>rgb.hex.converter.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
                 </div>
             </a>
 
@@ -352,10 +301,6 @@
                 <div>
                     <div class="tool-title">代码对比</div>
                     <div class="tool-desc">左右分栏比较文本差异，支持行级和行内高亮。</div>
-                </div>
-                <div class="tool-path">
-                    <span>code.diff.html</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
                 </div>
             </a>
         </section>
