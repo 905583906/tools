@@ -1,18 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toolbox</title>
+    <title>工具箱</title>
     <style>
         :root {
-            --bg: #f4f7fb;
-            --card: #ffffff;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --border: #d1d5db;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
+            --bg: #f6f7fb;
+            --surface: #ffffff;
+            --surface-soft: #f9fafb;
+            --text: #172033;
+            --muted: #667085;
+            --border: #d9dee8;
+            --shadow: rgba(23, 32, 51, 0.08);
+            --blue: #2563eb;
+            --green: #0f9f6e;
+            --orange: #e26d2f;
+            --red: #dc3e4d;
+            --cyan: #0989a8;
+            --violet: #7c3aed;
+            --ink: #334155;
         }
 
         * {
@@ -22,102 +29,336 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+            font-family: "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background:
+                linear-gradient(180deg, #ffffff 0%, var(--bg) 62%, #eef2f7 100%);
             color: var(--text);
+            padding: 42px 24px;
+        }
+
+        .shell {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+        }
+
+        header {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 24px;
+            margin-bottom: 28px;
         }
 
-        .card {
-            width: min(720px, 100%);
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(31, 41, 55, 0.08);
-        }
-
-        h1 {
-            font-size: 1.5rem;
+        .eyebrow {
+            color: var(--muted);
+            font-size: 0.86rem;
             margin-bottom: 8px;
         }
 
-        p {
+        h1 {
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            line-height: 1.05;
+            font-weight: 750;
+            letter-spacing: 0;
+        }
+
+        .summary {
+            max-width: 520px;
             color: var(--muted);
-            margin-bottom: 20px;
+            line-height: 1.65;
+            font-size: 0.98rem;
         }
 
-        .tool-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .tool-link {
-            display: block;
-            text-decoration: none;
+        .count-pill {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px 16px;
+            background: var(--surface);
+            color: var(--ink);
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            box-shadow: 0 12px 28px var(--shadow);
+        }
+
+        .count-pill svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+        }
+
+        .tool-card {
+            position: relative;
+            min-height: 190px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 18px;
+            text-decoration: none;
             color: var(--text);
-            transition: border-color 0.2s, transform 0.2s;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 12px 30px var(--shadow);
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
         }
 
-        .tool-link:hover {
+        .tool-card:hover {
+            transform: translateY(-3px);
             border-color: var(--accent);
-            transform: translateY(-1px);
+            box-shadow: 0 18px 42px rgba(23, 32, 51, 0.12);
         }
 
-        .tool-name {
-            font-weight: 600;
-            margin-bottom: 4px;
+        .tool-card:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--accent) 30%, transparent);
+            outline-offset: 3px;
+        }
+
+        .icon {
+            width: 52px;
+            height: 52px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 8px;
+            color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 12%, white);
+        }
+
+        .icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .tool-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .tool-desc {
+            color: var(--muted);
+            line-height: 1.55;
+            font-size: 0.92rem;
         }
 
         .tool-path {
-            color: var(--accent-hover);
-            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            color: var(--ink);
+            background: var(--surface-soft);
+            border: 1px solid #e6eaf1;
+            border-radius: 8px;
+            padding: 9px 10px;
+            font-family: "Cascadia Mono", "Consolas", "Monaco", monospace;
+            font-size: 0.78rem;
             word-break: break-all;
+        }
+
+        .tool-path svg {
+            flex: 0 0 auto;
+            width: 15px;
+            height: 15px;
+            stroke: var(--accent);
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .accent-blue { --accent: var(--blue); }
+        .accent-green { --accent: var(--green); }
+        .accent-orange { --accent: var(--orange); }
+        .accent-red { --accent: var(--red); }
+        .accent-cyan { --accent: var(--cyan); }
+        .accent-violet { --accent: var(--violet); }
+        .accent-ink { --accent: var(--ink); }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 28px 16px;
+            }
+
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 22px;
+            }
+
+            .summary {
+                font-size: 0.94rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <main class="card">
-        <h1>Tools</h1>
-        <p>Choose a tool below. Add more links here as you add more pages.</p>
+    <main class="shell">
+        <header>
+            <div>
+                <div class="eyebrow">STATIC WEB TOOLBOX</div>
+                <h1>开发工具箱</h1>
+                <p class="summary">常用开发、调试和图片处理工具，全部在浏览器本地运行。</p>
+            </div>
+            <div class="count-pill" aria-label="当前工具数量">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 5h16"></path>
+                    <path d="M4 12h16"></path>
+                    <path d="M4 19h16"></path>
+                </svg>
+                7 个工具
+            </div>
+        </header>
 
-        <div class="tool-list">
-            <a class="tool-link" href="./json.parser.html">
-                <div class="tool-name">JSON Parser</div>
-                <div class="tool-path">./json.parser.html</div>
+        <section class="tool-grid" aria-label="工具列表">
+            <a class="tool-card accent-blue" href="./json.parser.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M8 4H6a2 2 0 0 0-2 2v3a3 3 0 0 1-2 3 3 3 0 0 1 2 3v3a2 2 0 0 0 2 2h2"></path>
+                        <path d="M16 4h2a2 2 0 0 1 2 2v3a3 3 0 0 0 2 3 3 3 0 0 0-2 3v3a2 2 0 0 1-2 2h-2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">JSON 解析</div>
+                    <div class="tool-desc">格式化、校验 JSON，并用树形结构快速查看字段。</div>
+                </div>
+                <div class="tool-path">
+                    <span>json.parser.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-            <a class="tool-link" href="./xml.parser.html">
-                <div class="tool-name">XML Formatter</div>
-                <div class="tool-path">./xml.parser.html</div>
+
+            <a class="tool-card accent-green" href="./xml.parser.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="m9 18-6-6 6-6"></path>
+                        <path d="m15 6 6 6-6 6"></path>
+                        <path d="m14 4-4 16"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">XML 格式化</div>
+                    <div class="tool-desc">校验 XML 内容，整理缩进并突出显示结构。</div>
+                </div>
+                <div class="tool-path">
+                    <span>xml.parser.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-            <a class="tool-link" href="./base64.image.converter.html">
-                <div class="tool-name">Base64 Image Converter</div>
-                <div class="tool-path">./base64.image.converter.html</div>
+
+            <a class="tool-card accent-orange" href="./base64.image.converter.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                        <path d="m3 15 4-4 4 4 3-3 7 7"></path>
+                        <circle cx="15" cy="9" r="1.5"></circle>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">Base64 图片</div>
+                    <div class="tool-desc">图片与 Base64 自动互转，支持上传、拖拽和粘贴。</div>
+                </div>
+                <div class="tool-path">
+                    <span>base64.image.converter.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-            <a class="tool-link" href="./image.compressor.html">
-                <div class="tool-name">Image Compressor</div>
-                <div class="tool-path">./image.compressor.html</div>
+
+            <a class="tool-card accent-red" href="./image.compressor.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 14v5h5"></path>
+                        <path d="M20 10V5h-5"></path>
+                        <path d="m9 19-5-5"></path>
+                        <path d="m15 5 5 5"></path>
+                        <rect x="8" y="8" width="8" height="8" rx="1.5"></rect>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">图片压缩</div>
+                    <div class="tool-desc">批量压缩图片，可设置目标体积、尺寸和输出格式。</div>
+                </div>
+                <div class="tool-path">
+                    <span>image.compressor.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-            <a class="tool-link" href="./timestamp.converter.html">
-                <div class="tool-name">Timestamp Converter</div>
-                <div class="tool-path">./timestamp.converter.html</div>
+
+            <a class="tool-card accent-cyan" href="./timestamp.converter.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="8"></circle>
+                        <path d="M12 8v5l3 2"></path>
+                        <path d="M4 4 2 6"></path>
+                        <path d="m20 4 2 2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">时间戳转换</div>
+                    <div class="tool-desc">秒、毫秒、日期时间和时区之间快速互转。</div>
+                </div>
+                <div class="tool-path">
+                    <span>timestamp.converter.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-            <a class="tool-link" href="./rgb.hex.converter.html">
-                <div class="tool-name">RGB HEX Converter</div>
-                <div class="tool-path">./rgb.hex.converter.html</div>
+
+            <a class="tool-card accent-violet" href="./rgb.hex.converter.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 22s7-4.5 7-11a7 7 0 0 0-14 0c0 6.5 7 11 7 11Z"></path>
+                        <circle cx="12" cy="11" r="2.5"></circle>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">RGB / HEX</div>
+                    <div class="tool-desc">颜色值双向转换，并实时预览转换结果。</div>
+                </div>
+                <div class="tool-path">
+                    <span>rgb.hex.converter.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-            <a class="tool-link" href="./code.diff.html">
-                <div class="tool-name">Code Diff</div>
-                <div class="tool-path">./code.diff.html</div>
+
+            <a class="tool-card accent-ink" href="./code.diff.html">
+                <div class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 4v16"></path>
+                        <path d="M18 4v16"></path>
+                        <path d="M9 8h5"></path>
+                        <path d="M9 12h3"></path>
+                        <path d="M15 12h2"></path>
+                        <path d="M10 16h7"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="tool-title">代码对比</div>
+                    <div class="tool-desc">左右分栏比较文本差异，支持行级和行内高亮。</div>
+                </div>
+                <div class="tool-path">
+                    <span>code.diff.html</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+                </div>
             </a>
-        </div>
+        </section>
     </main>
 </body>
 </html>

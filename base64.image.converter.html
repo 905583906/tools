@@ -170,8 +170,7 @@
         }
 
         .preview-card,
-        .editor-card,
-        .meta-card {
+        .editor-card {
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background: var(--bg-secondary);
@@ -268,113 +267,6 @@
             background: #ffffff;
         }
 
-        .controls-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-
-        .btn {
-            border: 1px solid var(--border-color);
-            background: var(--button-muted);
-            color: var(--text-primary);
-            border-radius: 8px;
-            padding: 0.72rem 1rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn:hover:not(:disabled) {
-            background: var(--button-muted-hover);
-            border-color: var(--text-secondary);
-            transform: translateY(-1px);
-        }
-
-        .btn:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-
-        .btn.primary {
-            background: var(--button-bg);
-            color: #ffffff;
-            border-color: var(--button-bg);
-        }
-
-        .btn.primary:hover:not(:disabled) {
-            background: var(--button-hover);
-            border-color: var(--button-hover);
-        }
-
-        .btn.ghost {
-            background: transparent;
-        }
-
-        .meta-card {
-            padding: 0.9rem;
-        }
-
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.75rem;
-        }
-
-        .meta-item {
-            display: grid;
-            gap: 0.25rem;
-        }
-
-        .meta-label {
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-        }
-
-        .meta-value {
-            font-size: 0.92rem;
-            font-weight: 600;
-            word-break: break-all;
-        }
-
-        .option-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .segmented {
-            display: inline-flex;
-            padding: 0.25rem;
-            border-radius: 999px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .segmented input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .segmented label {
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            user-select: none;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .segmented input:checked + label {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
-        }
-
         .editor-card {
             flex: 1;
             display: flex;
@@ -401,26 +293,6 @@
         textarea:focus {
             outline: 2px solid var(--button-bg);
             outline-offset: -2px;
-        }
-
-        .status {
-            min-height: 22px;
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-        }
-
-        .status.success {
-            color: var(--success-color);
-        }
-
-        .status.error {
-            color: var(--error-color);
-        }
-
-        .helper {
-            font-size: 0.82rem;
-            line-height: 1.55;
-            color: var(--text-secondary);
         }
 
         .hidden-input {
@@ -457,30 +329,6 @@
             }
         }
 
-        @media (max-width: 640px) {
-            .meta-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .controls-row {
-                gap: 0.6rem;
-            }
-
-            .btn {
-                flex: 1 1 calc(50% - 0.6rem);
-                text-align: center;
-            }
-
-            .segmented {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .segmented label {
-                flex: 1;
-                text-align: center;
-            }
-        }
     </style>
 </head>
 <body>
@@ -516,40 +364,6 @@
                 </div>
             </div>
 
-            <div class="controls-row">
-                <button id="uploadBtn" class="btn primary" type="button">选择图片</button>
-                <button id="downloadBtn" class="btn" type="button" disabled>下载当前图片</button>
-                <button id="clearBtn" class="btn ghost" type="button">清空内容</button>
-            </div>
-
-            <div class="meta-card">
-                <div class="meta-grid">
-                    <div class="meta-item">
-                        <div class="meta-label">来源</div>
-                        <div id="metaSource" class="meta-value">未加载</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">文件名</div>
-                        <div id="metaName" class="meta-value">-</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">格式</div>
-                        <div id="metaType" class="meta-value">-</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">尺寸</div>
-                        <div id="metaSize" class="meta-value">-</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">图片宽高</div>
-                        <div id="metaDimension" class="meta-value">-</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Base64 长度</div>
-                        <div id="metaLength" class="meta-value">-</div>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <div class="divider" id="divider"></div>
@@ -560,31 +374,10 @@
                 <span class="panel-hint">支持 Data URL 与纯 Base64 双向还原</span>
             </div>
 
-            <div class="option-row">
-                <span class="panel-hint">图片转码输出：</span>
-                <div class="segmented">
-                    <input id="outputModeDataUrl" name="outputMode" type="radio" value="data-url" checked>
-                    <label for="outputModeDataUrl">Data URL</label>
-                    <input id="outputModeRaw" name="outputMode" type="radio" value="raw">
-                    <label for="outputModeRaw">纯 Base64</label>
-                </div>
-            </div>
-
             <div class="editor-card">
                 <textarea id="base64Input" spellcheck="false" placeholder="可直接粘贴 Data URL 或纯 Base64 内容，例如：data:image/png;base64,iVBORw0KGgo..."></textarea>
             </div>
 
-            <div class="controls-row">
-                <button id="imageToBase64Btn" class="btn primary" type="button">图片转成 Base64</button>
-                <button id="base64ToImageBtn" class="btn primary" type="button">Base64 还原图片</button>
-                <button id="copyBtn" class="btn" type="button">复制 Base64</button>
-            </div>
-
-            <div id="statusMessage" class="status">等待操作</div>
-
-            <div class="helper">
-                左侧可上传图片，也可以在右侧直接粘贴 Base64。还原时会自动识别常见图片格式并回显到左侧预览区。
-            </div>
         </section>
     </div>
 
@@ -603,24 +396,11 @@
         const previewImage = document.getElementById("previewImage");
         const fileInput = document.getElementById("fileInput");
 
-        const uploadBtn = document.getElementById("uploadBtn");
-        const downloadBtn = document.getElementById("downloadBtn");
-        const clearBtn = document.getElementById("clearBtn");
-        const imageToBase64Btn = document.getElementById("imageToBase64Btn");
-        const base64ToImageBtn = document.getElementById("base64ToImageBtn");
-        const copyBtn = document.getElementById("copyBtn");
         const base64Input = document.getElementById("base64Input");
-        const statusMessage = document.getElementById("statusMessage");
-
-        const metaSource = document.getElementById("metaSource");
-        const metaName = document.getElementById("metaName");
-        const metaType = document.getElementById("metaType");
-        const metaSize = document.getElementById("metaSize");
-        const metaDimension = document.getElementById("metaDimension");
-        const metaLength = document.getElementById("metaLength");
 
         let currentImage = null;
         let isResizing = false;
+        let restoreTimer = null;
 
         function getSystemTheme() {
             return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -677,24 +457,6 @@
             document.body.style.userSelect = "";
         });
 
-        function setStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = "status";
-            if (type) {
-                statusMessage.classList.add(type);
-            }
-        }
-
-        function formatBytes(bytes) {
-            if (!Number.isFinite(bytes) || bytes <= 0) {
-                return "0 B";
-            }
-            const units = ["B", "KB", "MB", "GB"];
-            const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-            const value = bytes / Math.pow(1024, index);
-            return `${value >= 100 ? value.toFixed(0) : value.toFixed(value >= 10 ? 1 : 2)} ${units[index]}`;
-        }
-
         function sanitizeFileName(name) {
             return (name || "image").replace(/[\\/:*?\"<>|]+/g, "-");
         }
@@ -744,27 +506,6 @@
         function updatePreviewVisibility(hasImage) {
             uploadPlaceholder.style.display = hasImage ? "none" : "grid";
             previewStage.classList.toggle("active", hasImage);
-            downloadBtn.disabled = !hasImage;
-        }
-
-        function updateMeta(info) {
-            metaSource.textContent = info.source || "未加载";
-            metaName.textContent = info.name || "-";
-            metaType.textContent = info.type || "-";
-            metaSize.textContent = info.size || "-";
-            metaDimension.textContent = info.dimension || "-";
-            metaLength.textContent = info.length || "-";
-        }
-
-        function resetMeta() {
-            updateMeta({
-                source: "未加载",
-                name: "-",
-                type: "-",
-                size: "-",
-                dimension: "-",
-                length: "-"
-            });
         }
 
         function getRawBase64(dataUrl) {
@@ -773,45 +514,18 @@
             return index >= 0 ? dataUrl.slice(index + marker.length) : "";
         }
 
-        function getSelectedOutputMode() {
-            return document.querySelector('input[name="outputMode"]:checked').value;
-        }
-
-        function fillTextareaFromCurrentImage() {
-            if (!currentImage) {
-                setStatus("请先上传图片，再执行图片转 Base64。", "error");
-                return;
-            }
-
-            const outputMode = getSelectedOutputMode();
-            base64Input.value = outputMode === "raw" ? currentImage.base64 : currentImage.dataUrl;
-            metaLength.textContent = `${currentImage.base64.length.toLocaleString()} 字符`;
-            setStatus(`已生成${outputMode === "raw" ? "纯 Base64" : "Data URL"}内容。`, "success");
-        }
-
         function setCurrentImage(info) {
             currentImage = info;
             previewImage.src = info.dataUrl;
             previewImage.alt = info.name || "图片预览";
             updatePreviewVisibility(true);
-            updateMeta({
-                source: info.source,
-                name: info.name || "-",
-                type: info.type || "-",
-                size: formatBytes(info.byteSize),
-                dimension: `${info.width} × ${info.height}`,
-                length: `${info.base64.length.toLocaleString()} 字符`
-            });
         }
 
-        function clearAll() {
+        function clearCurrentImage() {
             currentImage = null;
             previewImage.removeAttribute("src");
-            base64Input.value = "";
-            updatePreviewVisibility(false);
-            resetMeta();
             fileInput.value = "";
-            setStatus("内容已清空。");
+            updatePreviewVisibility(false);
         }
 
         function loadImageFromDataUrl(dataUrl) {
@@ -834,7 +548,6 @@
 
         async function handleFile(file, source) {
             if (!file || !file.type.startsWith("image/")) {
-                setStatus("请选择图片文件。", "error");
                 return;
             }
 
@@ -851,9 +564,8 @@
                     dataUrl,
                     base64: getRawBase64(dataUrl)
                 });
-                setStatus("图片已加载，可以直接转成 Base64。", "success");
+                base64Input.value = dataUrl;
             } catch (error) {
-                setStatus(error.message, "error");
             }
         }
 
@@ -917,43 +629,21 @@
                     dataUrl: normalized.dataUrl,
                     base64: normalized.base64
                 });
-                setStatus("Base64 已成功还原成图片。", "success");
             } catch (error) {
-                setStatus(error.message, "error");
             }
         }
 
-        async function copyBase64() {
-            const text = base64Input.value.trim();
-            if (!text) {
-                setStatus("当前没有可复制的 Base64 内容。", "error");
-                return;
-            }
-
-            try {
-                await navigator.clipboard.writeText(text);
-                setStatus("Base64 已复制到剪贴板。", "success");
-            } catch (error) {
-                setStatus("复制失败。请在浏览器允许剪贴板权限后重试。", "error");
-            }
+        function scheduleRestoreFromTextarea() {
+            window.clearTimeout(restoreTimer);
+            restoreTimer = window.setTimeout(() => {
+                if (!base64Input.value.trim()) {
+                    clearCurrentImage();
+                    return;
+                }
+                restoreImageFromTextarea();
+            }, 120);
         }
 
-        function downloadCurrentImage() {
-            if (!currentImage) {
-                setStatus("当前没有可下载的图片。", "error");
-                return;
-            }
-
-            const link = document.createElement("a");
-            link.href = currentImage.dataUrl;
-            link.download = currentImage.name || `image.${mimeToExtension(currentImage.type)}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setStatus("已开始下载当前图片。", "success");
-        }
-
-        uploadBtn.addEventListener("click", () => fileInput.click());
         uploadZone.addEventListener("click", () => fileInput.click());
         uploadZone.addEventListener("keydown", (event) => {
             if (event.key === "Enter" || event.key === " ") {
@@ -984,6 +674,7 @@
 
         document.addEventListener("paste", (event) => {
             if (event.target === base64Input) {
+                scheduleRestoreFromTextarea();
                 return;
             }
             const items = Array.from(event.clipboardData?.items || []);
@@ -995,14 +686,12 @@
             handleFile(file, "剪贴板粘贴");
         });
 
-        imageToBase64Btn.addEventListener("click", fillTextareaFromCurrentImage);
-        base64ToImageBtn.addEventListener("click", restoreImageFromTextarea);
-        copyBtn.addEventListener("click", copyBase64);
-        downloadBtn.addEventListener("click", downloadCurrentImage);
-        clearBtn.addEventListener("click", clearAll);
-
+        base64Input.addEventListener("input", () => {
+            if (!base64Input.value.trim()) {
+                clearCurrentImage();
+            }
+        });
         updatePreviewVisibility(false);
-        resetMeta();
     </script>
 </body>
 </html>
