@@ -13,6 +13,7 @@ A zero-dependency collection of static front-end utilities for common developmen
 - Timestamp Converter: [https://905583906.github.io/tools/timestamp.converter.html](https://905583906.github.io/tools/timestamp.converter.html)
 - RGB HEX Converter: [https://905583906.github.io/tools/rgb.hex.converter.html](https://905583906.github.io/tools/rgb.hex.converter.html)
 - Code Diff: [https://905583906.github.io/tools/code.diff.html](https://905583906.github.io/tools/code.diff.html)
+- Markdown Viewer: [https://905583906.github.io/tools/markdown.viewer.html](https://905583906.github.io/tools/markdown.viewer.html)
 
 ## Overview
 
@@ -25,6 +26,7 @@ This repository contains a small toolbox of browser-based utilities:
 - `Timestamp Converter` for converting timestamps and date-time values
 - `RGB HEX Converter` for color value conversion
 - `Code Diff` for side-by-side snippet comparison
+- `Markdown Viewer` for directly rendering Markdown content
 
 There is no build step, no backend, and no external dependency required.
 
@@ -39,6 +41,7 @@ There is no build step, no backend, and no external dependency required.
 | Timestamp Converter | `timestamp.converter.html` | [Open](https://905583906.github.io/tools/timestamp.converter.html) | Converts between timestamps and date-time values, supports second/millisecond units, timezone selection, current timestamp display, copy action, and batch conversion. |
 | RGB HEX Converter | `rgb.hex.converter.html` | [Open](https://905583906.github.io/tools/rgb.hex.converter.html) | Converts RGB and HEX values in both directions, supports `#RGB` and `#RRGGBB`, validates input, and shows a live color preview. |
 | Code Diff | `code.diff.html` | [Open](https://905583906.github.io/tools/code.diff.html) | Side-by-side code comparison with line-level and inline highlighting, synchronized scrolling, theme switching, and resizable panes on desktop. |
+| Markdown Viewer | `markdown.viewer.html` | [Open](https://905583906.github.io/tools/markdown.viewer.html) | Full-screen Markdown input box that shows formatted content when editing ends and also supports content from `?md=`, `?markdown=`, or the URL hash. |
 
 ## Features
 
@@ -80,7 +83,8 @@ Notes:
 ├── image.compressor.html
 ├── timestamp.converter.html
 ├── rgb.hex.converter.html
-└── code.diff.html
+├── code.diff.html
+└── markdown.viewer.html
 ```
 
 ## Typical Use Cases
@@ -92,3 +96,4 @@ Notes:
 - Convert between Unix timestamps and formatted date-time strings
 - Convert RGB values to HEX and back
 - Compare code snippets, config fragments, or plain text changes
+- Display Markdown-formatted content directly

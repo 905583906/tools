@@ -13,6 +13,7 @@
 - Timestamp Converter: [https://905583906.github.io/tools/timestamp.converter.html](https://905583906.github.io/tools/timestamp.converter.html)
 - RGB HEX Converter: [https://905583906.github.io/tools/rgb.hex.converter.html](https://905583906.github.io/tools/rgb.hex.converter.html)
 - Code Diff: [https://905583906.github.io/tools/code.diff.html](https://905583906.github.io/tools/code.diff.html)
+- Markdown Viewer: [https://905583906.github.io/tools/markdown.viewer.html](https://905583906.github.io/tools/markdown.viewer.html)
 
 ## 项目简介
 
@@ -25,6 +26,7 @@
 - `Timestamp Converter` 用于时间戳与日期时间互转
 - `RGB HEX Converter` 用于颜色值转换
 - `Code Diff` 用于代码片段双栏对比
+- `Markdown Viewer` 用于直接渲染 Markdown 内容
 
 项目不依赖构建工具，不需要后端服务，也不需要安装第三方依赖。
 
@@ -39,6 +41,7 @@
 | Timestamp Converter | `timestamp.converter.html` | [打开](https://905583906.github.io/tools/timestamp.converter.html) | 支持当前时间戳实时刷新、秒/毫秒切换、复制、时间戳与日期时间双向转换、时区选择、批量逐行转换。 |
 | RGB HEX Converter | `rgb.hex.converter.html` | [打开](https://905583906.github.io/tools/rgb.hex.converter.html) | 支持 RGB 与 HEX 双向转换，兼容 `#RGB` 和 `#RRGGBB`，带输入校验和颜色预览。 |
 | Code Diff | `code.diff.html` | [打开](https://905583906.github.io/tools/code.diff.html) | 双栏代码对比工具，支持行级高亮、行内高亮、滚动同步、深浅色切换和桌面端拖拽分栏。 |
+| Markdown Viewer | `markdown.viewer.html` | [打开](https://905583906.github.io/tools/markdown.viewer.html) | 全屏 Markdown 输入框，离开输入状态后直接显示格式化结果，也支持通过 `?md=`、`?markdown=` 或 URL hash 传入内容。 |
 
 ## 特点
 
@@ -80,7 +83,8 @@ http://localhost:8000/
 ├── image.compressor.html
 ├── timestamp.converter.html
 ├── rgb.hex.converter.html
-└── code.diff.html
+├── code.diff.html
+└── markdown.viewer.html
 ```
 
 ## 适用场景
@@ -92,3 +96,4 @@ http://localhost:8000/
 - 处理秒级或毫秒级时间戳与日期时间互转
 - 进行 RGB 和 HEX 颜色值换算
 - 对比代码片段、配置片段或文本差异
+- 直接展示 Markdown 格式内容

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --accent: #2196f3;
+            --code-bg: #f0f2f5;
+            --quote-bg: #f8fafc;
+            --link-color: #1565c0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --text-primary: #d4d4d4;
+            --text-secondary: #9d9d9d;
+            --border-color: #3e3e42;
+            --accent: #0e639c;
+            --code-bg: #2d2d30;
+            --quote-bg: #24272e;
+            --link-color: #7db7ff;
+        }
+
+        body {
+            height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        main {
+            flex: 1;
+            padding: 1rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .markdown-box {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            outline: none;
+            overflow: auto;
+        }
+
+        .markdown-box.editing {
+            font-family: "Consolas", "Monaco", "Courier New", monospace;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+
+        .markdown-box:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+        }
+
+        .markdown-body {
+            line-height: 1.72;
+            font-size: 1rem;
+            overflow-wrap: anywhere;
+        }
+
+        .markdown-body > * + * {
+            margin-top: 1rem;
+        }
+
+        .markdown-body h1,
+        .markdown-body h2,
+        .markdown-body h3,
+        .markdown-body h4,
+        .markdown-body h5,
+        .markdown-body h6 {
+            line-height: 1.25;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .markdown-body h1 {
+            font-size: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .markdown-body h2 {
+            font-size: 1.55rem;
+            padding-bottom: 0.35rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .markdown-body h3 {
+            font-size: 1.25rem;
+        }
+
+        .markdown-body p,
+        .markdown-body li {
+            color: var(--text-primary);
+        }
+
+        .markdown-body a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        .markdown-body a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-body ul,
+        .markdown-body ol {
+            padding-left: 1.5rem;
+        }
+
+        .markdown-body li + li {
+            margin-top: 0.35rem;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid var(--accent);
+            background: var(--quote-bg);
+            color: var(--text-secondary);
+            padding: 0.7rem 1rem;
+        }
+
+        .markdown-body code {
+            font-family: "Consolas", "Monaco", "Courier New", monospace;
+            font-size: 0.92em;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.12rem 0.35rem;
+        }
+
+        .markdown-body pre {
+            overflow: auto;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1rem;
+            line-height: 1.55;
+        }
+
+        .markdown-body pre code {
+            border: none;
+            padding: 0;
+            background: transparent;
+            font-size: 0.9rem;
+        }
+
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            display: block;
+            overflow-x: auto;
+        }
+
+        .markdown-body th,
+        .markdown-body td {
+            border: 1px solid var(--border-color);
+            padding: 0.55rem 0.7rem;
+            text-align: left;
+        }
+
+        .markdown-body th {
+            background: var(--bg-secondary);
+            font-weight: 700;
+        }
+
+        .markdown-body hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 720px) {
+            main {
+                padding: 0.75rem;
+            }
+
+            .markdown-body h1 {
+                font-size: 1.65rem;
+            }
+
+            .markdown-body h2 {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Markdown Viewer</h1>
+        <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </header>
+
+    <main>
+        <div class="markdown-box markdown-body" id="markdownBox" contenteditable="true" spellcheck="false" aria-label="Markdown 编辑框"></div>
+    </main>
+
+    <script>
+        const defaultMarkdown = "";
+
+        const box = document.getElementById("markdownBox");
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+        let markdown = "";
+        let editing = false;
+
+        function escapeHtml(value) {
+            return value
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderInline(value) {
+            let html = escapeHtml(value);
+            html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+            html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+            html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+            html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            return html;
+        }
+
+        function renderTable(lines) {
+            const rows = lines.map((line) => line.trim().replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim()));
+            const header = rows[0] || [];
+            const body = rows.slice(2);
+            const headHtml = header.map((cell) => `<th>${renderInline(cell)}</th>`).join("");
+            const bodyHtml = body
+                .map((row) => `<tr>${row.map((cell) => `<td>${renderInline(cell)}</td>`).join("")}</tr>`)
+                .join("");
+            return `<table><thead><tr>${headHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
+        }
+
+        function renderBlocks(markdown) {
+            const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+            const blocks = [];
+            let paragraph = [];
+            let list = null;
+            let quote = [];
+            let table = [];
+            let code = null;
+
+            function flushParagraph() {
+                if (paragraph.length) {
+                    blocks.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
+                    paragraph = [];
+                }
+            }
+
+            function flushList() {
+                if (list) {
+                    blocks.push(`<${list.type}>${list.items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</${list.type}>`);
+                    list = null;
+                }
+            }
+
+            function flushQuote() {
+                if (quote.length) {
+                    blocks.push(`<blockquote>${quote.map((line) => `<p>${renderInline(line)}</p>`).join("")}</blockquote>`);
+                    quote = [];
+                }
+            }
+
+            function flushTable() {
+                if (table.length) {
+                    blocks.push(renderTable(table));
+                    table = [];
+                }
+            }
+
+            function flushLoose() {
+                flushParagraph();
+                flushList();
+                flushQuote();
+                flushTable();
+            }
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                const fence = trimmed.match(/^```/);
+
+                if (fence) {
+                    if (code) {
+                        blocks.push(`<pre><code>${escapeHtml(code.lines.join("\n"))}</code></pre>`);
+                        code = null;
+                    } else {
+                        flushLoose();
+                        code = { lines: [] };
+                    }
+                    continue;
+                }
+
+                if (code) {
+                    code.lines.push(line);
+                    continue;
+                }
+
+                if (!trimmed) {
+                    flushLoose();
+                    continue;
+                }
+
+                if (/^\|.+\|$/.test(trimmed)) {
+                    flushParagraph();
+                    flushList();
+                    flushQuote();
+                    table.push(trimmed);
+                    continue;
+                }
+
+                flushTable();
+
+                const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
+                if (heading) {
+                    flushParagraph();
+                    flushList();
+                    flushQuote();
+                    const level = heading[1].length;
+                    blocks.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+                    continue;
+                }
+
+                if (/^---+$/.test(trimmed)) {
+                    flushLoose();
+                    blocks.push("<hr>");
+                    continue;
+                }
+
+                const quoteMatch = trimmed.match(/^>\s?(.*)$/);
+                if (quoteMatch) {
+                    flushParagraph();
+                    flushList();
+                    quote.push(quoteMatch[1]);
+                    continue;
+                }
+
+                const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
+                const ordered = trimmed.match(/^\d+\.\s+(.+)$/);
+                if (unordered || ordered) {
+                    flushParagraph();
+                    flushQuote();
+                    const type = unordered ? "ul" : "ol";
+                    if (!list || list.type !== type) {
+                        flushList();
+                        list = { type, items: [] };
+                    }
+                    list.items.push((unordered || ordered)[1]);
+                    continue;
+                }
+
+                flushList();
+                flushQuote();
+                paragraph.push(trimmed);
+            }
+
+            if (code) {
+                blocks.push(`<pre><code>${escapeHtml(code.lines.join("\n"))}</code></pre>`);
+            }
+            flushLoose();
+            return blocks.join("\n");
+        }
+
+        function getMarkdownFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const value = params.get("md") || params.get("markdown");
+            if (value) {
+                return value;
+            }
+            if (window.location.hash.length > 1) {
+                return decodeURIComponent(window.location.hash.slice(1));
+            }
+            return defaultMarkdown;
+        }
+
+        function showSource() {
+            editing = true;
+            box.classList.remove("markdown-body");
+            box.classList.add("editing");
+            box.textContent = markdown;
+        }
+
+        function showPreview() {
+            editing = false;
+            box.classList.remove("editing");
+            box.classList.add("markdown-body");
+            box.innerHTML = renderBlocks(markdown);
+        }
+
+        box.addEventListener("focus", () => {
+            if (!editing) {
+                showSource();
+            }
+        });
+
+        box.addEventListener("blur", () => {
+            markdown = box.innerText;
+            showPreview();
+        });
+
+        box.addEventListener("paste", (event) => {
+            if (!editing) {
+                return;
+            }
+            event.preventDefault();
+            const text = event.clipboardData.getData("text/plain");
+            document.execCommand("insertText", false, text);
+        });
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
+            localStorage.setItem("theme", theme);
+        }
+
+        themeToggle.addEventListener("click", () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            applyTheme(currentTheme === "dark" ? "light" : "dark");
+        });
+
+        applyTheme(localStorage.getItem("theme") || "light");
+        markdown = getMarkdownFromUrl();
+        showPreview();
+    </script>
+</body>
+</html>
