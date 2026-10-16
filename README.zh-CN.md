@@ -14,6 +14,7 @@
 - RGB HEX Converter: [https://905583906.github.io/tools/rgb.hex.converter.html](https://905583906.github.io/tools/rgb.hex.converter.html)
 - Code Diff: [https://905583906.github.io/tools/code.diff.html](https://905583906.github.io/tools/code.diff.html)
 - Markdown Viewer: [https://905583906.github.io/tools/markdown.viewer.html](https://905583906.github.io/tools/markdown.viewer.html)
+- Text Viewer: [https://905583906.github.io/tools/text.viewer.html](https://905583906.github.io/tools/text.viewer.html)
 
 ## 项目简介
 
@@ -27,6 +28,7 @@
 - `RGB HEX Converter` 用于颜色值转换
 - `Code Diff` 用于代码片段双栏对比
 - `Markdown Viewer` 用于直接渲染 Markdown 内容
+- `Text Viewer` 用于原样阅读和编辑纯文本
 
 项目不依赖构建工具，不需要后端服务，也不需要安装第三方依赖。
 
@@ -42,6 +44,7 @@
 | RGB HEX Converter | `rgb.hex.converter.html` | [打开](https://905583906.github.io/tools/rgb.hex.converter.html) | 支持 RGB 与 HEX 双向转换，兼容 `#RGB` 和 `#RRGGBB`，带输入校验和颜色预览。 |
 | Code Diff | `code.diff.html` | [打开](https://905583906.github.io/tools/code.diff.html) | 双栏代码对比工具，支持行级高亮、行内高亮、滚动同步、深浅色切换和桌面端拖拽分栏。 |
 | Markdown Viewer | `markdown.viewer.html` | [打开](https://905583906.github.io/tools/markdown.viewer.html) | 全屏 Markdown 输入框，离开输入状态后直接显示格式化结果，也支持通过 `?md=`、`?markdown=` 或 URL hash 传入内容。 |
+| Text Viewer | `text.viewer.html` | [打开](https://905583906.github.io/tools/text.viewer.html) | 全屏纯文本阅读和编辑，保留空行、段落与编号，自动换行，支持深浅色主题及 `?text=` 或 URL hash 传入内容。 |
 
 ## 特点
 
@@ -84,7 +87,8 @@ http://localhost:8000/
 ├── timestamp.converter.html
 ├── rgb.hex.converter.html
 ├── code.diff.html
-└── markdown.viewer.html
+├── markdown.viewer.html
+└── text.viewer.html
 ```
 
 ## 适用场景

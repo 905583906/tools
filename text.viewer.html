@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本查看器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --accent: #2196f3;
+            --code-bg: #f0f2f5;
+            --quote-bg: #f8fafc;
+            --link-color: #1565c0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --text-primary: #d4d4d4;
+            --text-secondary: #9d9d9d;
+            --border-color: #3e3e42;
+            --accent: #0e639c;
+            --code-bg: #2d2d30;
+            --quote-bg: #24272e;
+            --link-color: #7db7ff;
+        }
+
+        body {
+            height: 100vh;
+            height: 100dvh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        main {
+            flex: 1;
+            padding: 1rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-box {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            resize: none;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            tab-size: 4;
+        }
+
+        .text-box:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 600px) {
+            main { padding: 0.75rem; }
+            .text-box { padding: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>文本查看器</h1>
+        <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </header>
+    <main>
+        <textarea class="text-box" id="textBox" aria-label="文本内容" placeholder="在这里粘贴或输入文本…" spellcheck="false" wrap="soft"></textarea>
+    </main>
+    <script>
+        const box = document.getElementById("textBox");
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
+            try { localStorage.setItem("theme", theme); } catch (_) {}
+        }
+
+        themeToggle.addEventListener("click", () => {
+            const current = document.documentElement.getAttribute("data-theme");
+            applyTheme(current === "dark" ? "light" : "dark");
+        });
+
+        let theme = "light";
+        try { theme = localStorage.getItem("theme") || "light"; } catch (_) {}
+        applyTheme(theme === "dark" ? "dark" : "light");
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("text")) {
+            box.value = params.get("text");
+        } else if (window.location.hash.length > 1) {
+            const hash = window.location.hash.slice(1);
+            try { box.value = decodeURIComponent(hash); }
+            catch (_) { box.value = hash; }
+        }
+    </script>
+</body>
+</html>
