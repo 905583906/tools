@@ -70,6 +70,15 @@
             font-size: 0.98rem;
         }
 
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            align-items: center;
+            gap: 12px;
+            max-width: 100%;
+        }
+
         .count-pill {
             flex: 0 0 auto;
             display: inline-flex;
@@ -87,6 +96,20 @@
         .count-pill svg {
             width: 18px;
             height: 18px;
+        }
+
+        .github-link {
+            text-decoration: none;
+        }
+
+        .github-link:hover {
+            color: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .github-link:focus-visible {
+            outline: 3px solid var(--blue);
+            outline-offset: 3px;
         }
 
         .tool-grid {
@@ -191,13 +214,22 @@
                 <h1>开发工具箱</h1>
                 <p class="summary">常用开发、调试和图片处理工具，全部在浏览器本地运行。</p>
             </div>
-            <div class="count-pill" aria-label="当前工具数量">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 5h16"></path>
-                    <path d="M4 12h16"></path>
-                    <path d="M4 19h16"></path>
-                </svg>
-                9 个工具
+            <div class="header-actions">
+                <div class="count-pill" aria-label="当前工具数量">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 5h16"></path>
+                        <path d="M4 12h16"></path>
+                        <path d="M4 19h16"></path>
+                    </svg>
+                    9 个工具
+                </div>
+                <a class="count-pill github-link" href="https://github.com/905583906/tools" target="_blank" rel="noopener noreferrer" aria-label="GitHub 源码仓库（在新标签页打开）">
+                    GitHub
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M15 3h6v6M10 14 21 3"></path>
+                        <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path>
+                    </svg>
+                </a>
             </div>
         </header>
 
