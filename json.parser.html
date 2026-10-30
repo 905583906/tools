@@ -401,6 +401,22 @@
                     return input.slice(1, -1).trim();
                 }
             }
+            try {
+                // Never unescape JSON that is already valid: its string values
+                // may intentionally contain backslashes or escaped quotes.
+                JSON.parse(input);
+            } catch (e) {
+                try {
+                    // Logs may contain a JSON string's contents without its
+                    // surrounding quotes, mixed with real line breaks/tabs.
+                    const escaped = input.replace(/[\u0000-\u001f]/g, char => JSON.stringify(char).slice(1, -1));
+                    const decoded = JSON.parse('"' + escaped + '"').trim();
+                    JSON.parse(decoded);
+                    return decoded;
+                } catch (decodeError) {
+                    // Keep the original input so parseJSON reports its error.
+                }
+            }
             return input;
         }
 
